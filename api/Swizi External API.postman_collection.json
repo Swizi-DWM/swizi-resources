@@ -1,0 +1,6253 @@
+{
+	"info": {
+		"_postman_id": "514f6163-976b-45a2-b3c9-8c056f81eb71",
+		"name": "Swizi External API",
+		"description": "**General information**\n\nThis document describes the SWIZI APIs used for external services to manage users and groups.\n\nAll exchanges are in JSON format.\n\n**Authentication**\n\nThe API is protected by OIDC Client Credentials flow.\n\n**API return’s codes**\n\n| **Status** | **Description** |\n| --- | --- |\n| 200 | Success with content in response |\n| 204 | Success (no content expected) |\n| 400 | Bad request |\n| 403 | Access denied |\n| 409 | Conflict : entity already exists |\n| 500 | Internal error occured |\n\nIn case of errors, the response has the following format:\n\n``` json\n{\n    \"status\": \"4XX|5XX\",\n    \"errors\": [\n        {\n            \"path\": \"specific property in query or body\",\n            \"errorCode\": \"specific error code\",\n            \"message\": \"specific error message\",\n            \"location\": \"query|body\"\n        }\n    ]\n}\n\n```",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "3024868",
+		"_collection_link": "https://swizi-dwm.postman.co/workspace/Swizi-Team-Workspace~c7ccb40c-7297-4958-81fa-039f4a6b27f2/collection/3024868-514f6163-976b-45a2-b3c9-8c056f81eb71?action=share&source=collection_link&creator=3024868"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Get token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "grant_type",
+									"value": "client_credentials",
+									"description": "Grant type",
+									"type": "text"
+								},
+								{
+									"key": "client_id",
+									"value": "{{keycloak_client_id_service}}",
+									"description": "Client ID provided by SWIZI team",
+									"type": "text"
+								},
+								{
+									"key": "client_secret",
+									"value": "{{keycloak_client_secret_service}}",
+									"description": "Client secret provided by SWIZI team",
+									"type": "text"
+								},
+								{
+									"key": "scope",
+									"value": "openid",
+									"description": "Scopes",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{keycloak_url}}/auth/realms/:realm/protocol/openid-connect/token",
+							"host": [
+								"{{keycloak_url}}"
+							],
+							"path": [
+								"auth",
+								"realms",
+								":realm",
+								"protocol",
+								"openid-connect",
+								"token"
+							],
+							"variable": [
+								{
+									"key": "realm",
+									"value": "{{keycloak_realm_client}}",
+									"description": "Keycloak realm provided by SWIZI team"
+								}
+							]
+						},
+						"description": "Get an access token."
+					},
+					"response": [
+						{
+							"name": "Get token",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/x-www-form-urlencoded"
+									}
+								],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "client_credentials",
+											"type": "text"
+										},
+										{
+											"key": "client_id",
+											"value": "CLIENT_ID",
+											"type": "text"
+										},
+										{
+											"key": "client_secret",
+											"value": "CLIENT_SECRET",
+											"type": "text"
+										},
+										{
+											"key": "scope",
+											"value": "openid",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "https://keycloak.swizi.io/auth/realms/CLIENT_REALM/protocol/openid-connect/token",
+									"protocol": "https",
+									"host": [
+										"keycloak",
+										"swizi",
+										"io"
+									],
+									"path": [
+										"auth",
+										"realms",
+										"CLIENT_REALM",
+										"protocol",
+										"openid-connect",
+										"token"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"name": "Content-Type",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"access_token\": \"eyJhbGciOiJSUzI1NiI...\",\n    \"expires_in\": 3600,\n    \"refresh_expires_in\": 0,\n    \"token_type\": \"Bearer\",\n    \"id_token\": \"eyJhbGciOiJSUzI1NiIsInR5...\",\n    \"not-before-policy\": 0,\n    \"scope\": \"openid email profile\"\n}"
+						}
+					]
+				}
+			],
+			"description": "The authentication is based on the OpenID Connect standard by using the Client Credentials flow.\n\nTo access your API, you must request an access token for it. Then, you must pass the retrieved access token as a Bearer token in the Authorization header of your HTTP request.\n\n| **Info** | **Description** |\n| --- | --- |\n| REALM | Keycloak realm provided by SWIZI team |\n| CLIENT_ID | Client ID provided by SWIZI team |\n| CLIENT_SECRET | Secret provided by SWIZI team |\n| Discovery URL | [https://keycloak.swizi.io/auth/realms/REALM/.well-known/openid-configuration](https://keycloak.swizi.io/auth/realms/REALM/.well-known/openid-configuration) |"
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Create user",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"extId\": \"05632\",\n  \"login\": \"user\",\n  \"email\": \"user@swizi.io\",\n  \"firstname\": \"Test\",\n  \"lastname\": \"User\",\n  \"phone\": \"\",\n  \"mobilePhone\": \"\",\n  \"company\": \"SWIZI\",\n  \"entity\": \"Entité 1\",\n  \"businessAddress\": \"My address\",\n  \"function\": \"Test\",\n  \"groups\": [\n    5,\n    6\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/user",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"user"
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}",
+									"description": "Application ID"
+								}
+							]
+						},
+						"description": "Create a user.\n\n- An exernal ID can be set to identify a user from an external service. It can be used to find/update a user instead of using the SWIZI user ID.\n- If login is not set, email will be used as login by default.\n- Login must be unique: if not, a 409 status code is returned.\n- Groups can be assigned to user by using SWIZI group IDs.\n- If one group ID is invalid, a 400 status code is returned.\n    \n\nAfter success, the user ID is returned."
+					},
+					"response": [
+						{
+							"name": "Create user - OK",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"extId\": \"05632\",\n  \"login\": \"user\",\n  \"email\": \"user@swizi.io\",\n  \"firstname\": \"Test\",\n  \"lastname\": \"User\",\n  \"phone\": \"\",\n  \"mobilePhone\": \"\",\n  \"company\": \"SWIZI\",\n  \"entity\": \"Entité 1\",\n  \"businessAddress\": \"My address\",\n  \"function\": \"Test\",\n  \"groups\": [\n    5,\n    6\n  ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/100/user",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										"100",
+										"user"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"name": "Content-Type",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": 45\n}"
+						},
+						{
+							"name": "Already exits - conflict",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"extId\": \"05632\",\n  \"login\": \"user\",\n  \"email\": \"user@swizi.io\",\n  \"firstname\": \"Test\",\n  \"lastname\": \"User\",\n  \"phone\": \"\",\n  \"mobilePhone\": \"\",\n  \"company\": \"SWIZI\",\n  \"entity\": \"Entité 1\",\n  \"businessAddress\": \"My address\",\n  \"function\": \"Test\",\n  \"groups\": [\n    5,\n    6\n  ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/user",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"user"
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": null
+										}
+									]
+								}
+							},
+							"status": "Conflict",
+							"code": 409,
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": ""
+						}
+					]
+				},
+				{
+					"name": "Create bulk user",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n  {\n    \"extId\": \"05632\",\n    \"login\": \"user1\",\n    \"email\": \"user1@swizi.io\",\n    \"firstname\": \"Test\",\n    \"lastname\": \"User 1\",\n    \"phone\": \"\",\n    \"mobilePhone\": \"\",\n    \"company\": \"SWIZI\",\n    \"entity\": \"Entité 1\",\n    \"businessAddress\": \"My address 1\",\n    \"function\": \"Test\",\n    \"groups\": [\n      5,\n      6\n    ]\n  },\n  {\n    \"extId\": \"05633\",\n    \"login\": \"user2\",\n    \"email\": \"user2@swizi.io\",\n    \"firstname\": \"Test\",\n    \"lastname\": \"User\",\n    \"phone\": \"\",\n    \"mobile\": \"\",\n    \"company\": \"SWIZI\",\n    \"entity\": \"Entité 2\",\n    \"businessAddress\": \"My address 2\",\n    \"function\": \"Test 2\",\n    \"groups\": [\n      5\n    ]\n  }\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/user/bulk/add",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"user",
+								"bulk",
+								"add"
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}",
+									"description": "Application ID"
+								}
+							]
+						},
+						"description": "Create users.\n\n- An exernal ID can be set to identify a user from an external service. It can be used to find/update a user instead of using the SWIZI user ID.\n- If login is not set, email will be used as login by default.\n- Login must be unique: if one already exists, a 409 http status code is returned.\n- Groups can be assigned to user by setting te SWIZI group IDs.\n- If one group ID is invalid, a 400 status code is returned."
+					},
+					"response": [
+						{
+							"name": "Create bulk user - OK",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "[\n  {\n    \"extId\": \"05632\",\n    \"login\": \"user1\",\n    \"email\": \"user1@swizi.io\",\n    \"firstname\": \"Test\",\n    \"lastname\": \"User 1\",\n    \"phone\": \"\",\n    \"mobilePhone\": \"\",\n    \"company\": \"SWIZI\",\n    \"entity\": \"Entité 1\",\n    \"businessAddress\": \"My address 1\",\n    \"function\": \"Test\",\n    \"groups\": [\n      5,\n      6\n    ]\n  },\n  {\n    \"extId\": \"05633\",\n    \"login\": \"user2\",\n    \"email\": \"user2@swizi.io\",\n    \"firstname\": \"Test\",\n    \"lastname\": \"User\",\n    \"phone\": \"\",\n    \"mobile\": \"\",\n    \"company\": \"SWIZI\",\n    \"entity\": \"Entité 2\",\n    \"businessAddress\": \"My address 2\",\n    \"function\": \"Test 2\",\n    \"groups\": [\n      5\n    ]\n  }\n]",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/100/user/bulk",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										"100",
+										"user",
+										"bulk"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"name": "Content-Type",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": "[\n  {\n    \"id\": 45,\n    \"extId\": \"05632\",\n    \"login\": \"user1\"\n  },\n  {\n    \"id\": 46,\n    \"extId\": \"05633\",\n    \"login\": \"user2\"\n  }\n]"
+						},
+						{
+							"name": "Already exists - conlict",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "[\n  {\n    \"extId\": \"05632\",\n    \"login\": \"user1\",\n    \"email\": \"user1@swizi.io\",\n    \"firstname\": \"Test\",\n    \"lastname\": \"User 1\",\n    \"phone\": \"\",\n    \"mobilePhone\": \"\",\n    \"company\": \"SWIZI\",\n    \"entity\": \"Entité 1\",\n    \"businessAddress\": \"My address 1\",\n    \"function\": \"Test\",\n    \"groups\": [\n      5,\n      6\n    ]\n  },\n  {\n    \"extId\": \"05633\",\n    \"login\": \"user2\",\n    \"email\": \"user2@swizi.io\",\n    \"firstname\": \"Test\",\n    \"lastname\": \"User\",\n    \"phone\": \"\",\n    \"mobile\": \"\",\n    \"company\": \"SWIZI\",\n    \"entity\": \"Entité 2\",\n    \"businessAddress\": \"My address 2\",\n    \"function\": \"Test 2\",\n    \"groups\": [\n      5\n    ]\n  }\n]",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/100/user/bulk",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										"100",
+										"user",
+										"bulk"
+									]
+								}
+							},
+							"status": "Conflict",
+							"code": 409,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"name": "Content-Type",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						}
+					]
+				},
+				{
+					"name": "Get user by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/user?id=45",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"user"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "45"
+								}
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}",
+									"description": "Application ID"
+								}
+							]
+						},
+						"description": "Get a user by its Swizi ID.\n\nIf user is not found, a 400 status code is returned."
+					},
+					"response": [
+						{
+							"name": "Get user by ID - OK",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{back_api_url}}/ext/100/user?id=45",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										"100",
+										"user"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "45"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"name": "Content-Type",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"id\": 45,\n  \"extId\": \"05632\",\n  \"login\": \"user\",\n  \"email\": \"user@swizi.io\",\n  \"firstname\": \"Test\",\n  \"lastname\": \"User\",\n  \"phone\": \"\",\n  \"mobilePhone\": \"\",\n  \"company\": \"SWIZI\",\n  \"entity\": \"Entité 1\",\n  \"businessAddress\": \"My address\",\n  \"function\": \"Test\",\n  \"enabled\": true,\n  \"groups\": [\n    {\n      \"id\": 5,\n      \"label\": \"Group 1\"\n    },\n    {\n      \"id\": 6,\n      \"label\": \"Group 2\"\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Get user by external ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/user?extId=05632",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"user"
+							],
+							"query": [
+								{
+									"key": "extId",
+									"value": "05632"
+								}
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}"
+								}
+							]
+						},
+						"description": "Get user by its external ID.\n\nIf user is not found, a 400 status code is returned."
+					},
+					"response": [
+						{
+							"name": "Get user by external ID - OK",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{back_api_url}}/ext/100/user?extId=05632",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										"100",
+										"user"
+									],
+									"query": [
+										{
+											"key": "extId",
+											"value": "05632"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"name": "Content-Type",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"id\": 45,\n  \"extId\": \"05632\",\n  \"login\": \"user\",\n  \"email\": \"user@swizi.io\",\n  \"firstname\": \"Test\",\n  \"lastname\": \"User\",\n  \"phone\": \"\",\n  \"mobilePhone\": \"\",\n  \"company\": \"SWIZI\",\n  \"entity\": \"Entité 1\",\n  \"businessAddress\": \"My address\",\n  \"function\": \"Test\",\n  \"enabled\": true,\n  \"groups\": [\n    {\n      \"id\": 5,\n      \"label\": \"Group 1\"\n    },\n    {\n      \"id\": 6,\n      \"label\": \"Group 2\"\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Get users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/user/list?page=2&size=5&dir=asc&sort=login",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"user",
+								"list"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "2"
+								},
+								{
+									"key": "size",
+									"value": "5"
+								},
+								{
+									"key": "dir",
+									"value": "asc"
+								},
+								{
+									"key": "sort",
+									"value": "login"
+								}
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}",
+									"description": "Application ID"
+								}
+							]
+						},
+						"description": "Get the user list.\n\n- Max size by page is 1000\n- the result can be sorted by : login, email, extId, firstname, lastname"
+					},
+					"response": [
+						{
+							"name": "Get users - OK",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{back_api_url}}/ext/100/user/list?page=2&size=5&dir=asc&sort=login",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										"100",
+										"user",
+										"list"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "2"
+										},
+										{
+											"key": "size",
+											"value": "5"
+										},
+										{
+											"key": "dir",
+											"value": "asc"
+										},
+										{
+											"key": "sort",
+											"value": "login"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"name": "Content-Type",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"items\": [\n    {\n      \"id\": 45,\n      \"extId\": \"05632\",\n      \"login\": \"user1\",\n      \"email\": \"user1@swizi.io\",\n      \"firstname\": \"Test\",\n      \"lastname\": \"User 1\",\n      \"phone\": \"\",\n      \"mobilePhone\": \"\",\n      \"company\": \"SWIZI\",\n      \"entity\": \"Entité 1\",\n      \"businessAddress\": \"My address 1\",\n      \"function\": \"Test\"\n    },\n    {\n      \"id\": 46,\n      \"extId\": \"05633\",\n      \"login\": \"user2\",\n      \"email\": \"user2@swizi.io\",\n      \"firstname\": \"Test\",\n      \"lastname\": \"User\",\n      \"phone\": \"\",\n      \"mobilePhone\": \"\",\n      \"company\": \"SWIZI\",\n      \"entity\": \"Entité 2\",\n      \"businessAddress\": \"My address 2\",\n      \"function\": \"Test\"\n    },\n    {\n      \"id\": 47,\n      \"extId\": \"05634\",\n      \"login\": \"user3\",\n      \"email\": \"user3@swizi.io\",\n      \"firstname\": \"Test\",\n      \"lastname\": \"User\",\n      \"phone\": \"\",\n      \"mobilePhone\": \"\",\n      \"company\": \"SWIZI\",\n      \"function\": \"Test\"\n    },\n    {\n      \"id\": 48,\n      \"extId\": \"05635\",\n      \"login\": \"user4\",\n      \"email\": \"user4@swizi.io\",\n      \"firstname\": \"Test\",\n      \"lastname\": \"User\",\n      \"phone\": \"\",\n      \"mobilePhone\": \"\",\n      \"company\": \"SWIZI\",\n      \"function\": \"Test\"\n    },\n    {\n      \"id\": 49,\n      \"extId\": \"05636\",\n      \"login\": \"user5\",\n      \"email\": \"user5@swizi.io\",\n      \"firstname\": \"Test\",\n      \"lastname\": \"User\",\n      \"phone\": \"\",\n      \"mobilePhone\": \"\",\n      \"company\": \"SWIZI\",\n      \"function\": \"Test\"\n    }\n  ],\n  \"nbItems\": 5,\n  \"totalItems\": 14,\n  \"currentPage\": 2,\n  \"previousPage\": 1,\n  \"nextPage\": 3\n}"
+						}
+					]
+				},
+				{
+					"name": "Update user by ID",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\"extId\": \"05635\",\n  \"login\": \"user1\",\n  \"email\": \"user1@swizi.io\",\n  \"firstname\": \"Test\",\n  \"lastname\": \"User\",\n  \"phone\": \"\",\n  \"mobilePhone\": \"\",\n  \"company\": \"SWIZI\",\n  \"entity\": \"Entité 2\",\n  \"businessAddress\": \"My address\",\n  \"function\": \"Test\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/user?id=1527435",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"user"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "1527435"
+								}
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}",
+									"description": "Application ID"
+								}
+							]
+						},
+						"description": "Update a user by its ID.\n\n- Email can be updated if login is different from email.\n- If user is not found by its ID, a 400 status code is returned."
+					},
+					"response": [
+						{
+							"name": "Update user - OK",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"email\": \"user@swizi.io\",\n  \"firstname\": \"Test\",\n  \"lastname\": \"User\",\n  \"phone\": \"\",\n  \"mobilePhone\": \"\",\n  \"company\": \"SWIZI\",\n  \"entity\": \"Entité 1\",\n  \"businessAddress\": \"My address 1\",\n  \"function\": \"Test\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/100/user?id=45",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										"100",
+										"user"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "45"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"name": "Content-Type",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"id\": 45,\n  \"extId\": \"05632\",\n  \"login\": \"user\",\n  \"email\": \"user@swizi.io\",\n  \"firstname\": \"Test\",\n  \"lastname\": \"User\",\n  \"phone\": \"\",\n  \"mobilePhone\": \"\",\n  \"company\": \"SWIZI\",\n  \"entity\": \"Entité 1\",\n  \"businessAddress\": \"My address 1\",\n  \"function\": \"Test\",\n  \"enabled\": true,\n  \"groups\": [\n    {\n      \"id\": 5,\n      \"label\": \"Group 1\"\n    },\n    {\n      \"id\": 6,\n      \"label\": \"Group 2\"\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Update user by external ID",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"user@swizi.io\",\n  \"firstname\": \"Test\",\n  \"lastname\": \"User\",\n  \"phone\": \"\",\n  \"mobilePhone\": \"\",\n  \"company\": \"SWIZI\",\n  \"entity\": \"Entité 1\",\n  \"businessAddress\": \"My address 1\",\n  \"function\": \"Test\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/user?extId=05632",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"user"
+							],
+							"query": [
+								{
+									"key": "extId",
+									"value": "05632"
+								}
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}",
+									"description": "Application ID"
+								}
+							]
+						},
+						"description": "Update a user by its external ID.\n\n- Email can be updated if login is different from email.\n- If user is not found by its external ID, a 400 status code is returned."
+					},
+					"response": [
+						{
+							"name": "Update user - OK",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"email\": \"user@swizi.io\",\n  \"firstname\": \"Test\",\n  \"lastname\": \"User\",\n  \"phone\": \"\",\n  \"mobilePhone\": \"\",\n  \"company\": \"SWIZI\",\n  \"entity\": \"Entité 1\",\n  \"businessAddress\": \"My address 1\",\n  \"function\": \"Test\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/100/user?extId=05632",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										"100",
+										"user"
+									],
+									"query": [
+										{
+											"key": "extId",
+											"value": "05632"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"name": "Content-Type",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"id\": 45,\n  \"extId\": \"05632\",\n  \"login\": \"user\",\n  \"email\": \"user@swizi.io\",\n  \"firstname\": \"Test\",\n  \"lastname\": \"User\",\n  \"phone\": \"\",\n  \"mobilePhone\": \"\",\n  \"company\": \"SWIZI\",\n  \"entity\": \"Entité 1\",\n  \"businessAddress\": \"My address 1\",\n  \"function\": \"Test\",\n  \"enabled\": true,\n  \"groups\": [\n    {\n      \"id\": 5,\n      \"label\": \"Group 1\"\n    },\n    {\n      \"id\": 6,\n      \"label\": \"Group 2\"\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Update user picture by ID",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "picture",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/user/picture?id=45",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"user",
+								"picture"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "45"
+								}
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}",
+									"description": "Application ID"
+								}
+							]
+						},
+						"description": "Update a user picture by its Swizi ID.\n\nIf user is not found, a 400 status code is returned."
+					},
+					"response": [
+						{
+							"name": "Update user picture by ID",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "picture",
+											"type": "file",
+											"src": []
+										}
+									]
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/100/user/picture?id=45",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										"100",
+										"user",
+										"picture"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "45"
+										}
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": ""
+						}
+					]
+				},
+				{
+					"name": "Update user picture by external ID",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "picture",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/user/picture?extId=05632",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"user",
+								"picture"
+							],
+							"query": [
+								{
+									"key": "extId",
+									"value": "05632"
+								}
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}",
+									"description": "Application ID"
+								}
+							]
+						},
+						"description": "Update a user picture by its external ID.\n\nIf user is not found, a 400 status code is returned."
+					},
+					"response": [
+						{
+							"name": "Update user picture by external ID",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "picture",
+											"type": "file",
+											"src": []
+										}
+									]
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/100/user/picture?extId=05632",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										"100",
+										"user",
+										"picture"
+									],
+									"query": [
+										{
+											"key": "extId",
+											"value": "05632"
+										}
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": ""
+						}
+					]
+				},
+				{
+					"name": "Get user picture by ID",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/user/picture?id=45",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"user",
+								"picture"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "45"
+								}
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}",
+									"description": "Application ID"
+								}
+							]
+						},
+						"description": "Get a user picture by its Swizi ID.\n\n- If user is not found, a 400 status code is returned.\n- If no picture is found, a 204 status code is returned."
+					},
+					"response": [
+						{
+							"name": "Get user picture by ID",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/user/picture?id=45",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"user",
+										"picture"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "45"
+										}
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "",
+											"description": "Application ID"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": ""
+						}
+					]
+				},
+				{
+					"name": "Get user picture by external ID",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/user/picture?extId=05632",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"user",
+								"picture"
+							],
+							"query": [
+								{
+									"key": "extId",
+									"value": "05632"
+								}
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}",
+									"description": "Application ID"
+								}
+							]
+						},
+						"description": "Get a user picture by its external ID.\n\n- If user is not found, a 400 status code is returned.\n- If no picture is found, a 204 status code is returned."
+					},
+					"response": [
+						{
+							"name": "Get user picture by external ID",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/user/picture?extId=05632",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"user",
+										"picture"
+									],
+									"query": [
+										{
+											"key": "extId",
+											"value": "05632"
+										}
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "",
+											"description": "Application ID"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": ""
+						}
+					]
+				},
+				{
+					"name": "Delete user by ID",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/user?id=45",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"user"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "45"
+								}
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}",
+									"description": "Application ID"
+								}
+							]
+						},
+						"description": "Delete a user by its Swizi ID.\n\nIf user is not found, a 400 status code is returned."
+					},
+					"response": [
+						{
+							"name": "Delete user by ID - OK",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"id\": 45,\n  \"extId\": \"05632\",\n  \"email\": \"user@swizi.io\",\n  \"firstname\": \"Test\",\n  \"lastname\": \"User\",\n  \"phone\": \"\",\n  \"mobilePhone\": \"\",\n  \"company\": \"SWIZI\",\n  \"function\": \"Test\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/100/user?id=45",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										"100",
+										"user"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "45"
+										}
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"name": "Content-Type",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						}
+					]
+				},
+				{
+					"name": "Delete user by external ID",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/user?extId=05632",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"user"
+							],
+							"query": [
+								{
+									"key": "extId",
+									"value": "05632"
+								}
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}"
+								}
+							]
+						},
+						"description": "Delete a user by its external ID.\n\nIf user is not found, a 400 status code is returned."
+					},
+					"response": [
+						{
+							"name": "Delete user by external ID - OK",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{back_api_url}}/ext/100/user?extId=05632",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										"100",
+										"user"
+									],
+									"query": [
+										{
+											"key": "extId",
+											"value": "05632"
+										}
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"name": "Content-Type",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						}
+					]
+				},
+				{
+					"name": "Delete bulk users",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userIds\": [\n    45,\n    46\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/user/bulk/remove",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"user",
+								"bulk",
+								"remove"
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}",
+									"description": "Application ID"
+								}
+							]
+						},
+						"description": "Delete users.\n\nIf one user is not found, a 400 status code is returned."
+					},
+					"response": [
+						{
+							"name": "Delete bulk users",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"userIds\": [\n    45,\n    46\n  ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/100/user/bulk/remove",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										"100",
+										"user",
+										"bulk",
+										"remove"
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": ""
+						}
+					]
+				},
+				{
+					"name": "Active / deactivate a user by ID",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/user/status?id=45&active=true",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"user",
+								"status"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "45"
+								},
+								{
+									"key": "active",
+									"value": "true"
+								}
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}",
+									"description": "Application ID"
+								}
+							]
+						},
+						"description": "Activate or deactivate a user by its Swizi ID.\n\nIf user is not found, a 400 status code is returned."
+					},
+					"response": [
+						{
+							"name": "Active / deactivate a user  by ID",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{back_api_url}}/ext/100/user/5/status?id=45&active=true",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										"100",
+										"user",
+										"5",
+										"status"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "45"
+										},
+										{
+											"key": "active",
+											"value": "true"
+										}
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": ""
+						}
+					]
+				},
+				{
+					"name": "Active / deactivate a user by external ID",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/user/status?extId=05632&active=true",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"user",
+								"status"
+							],
+							"query": [
+								{
+									"key": "extId",
+									"value": "05632"
+								},
+								{
+									"key": "active",
+									"value": "true"
+								}
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}",
+									"description": "Application ID"
+								}
+							]
+						},
+						"description": "Activate or deactivate a user by its external ID.\n\nIf user is not found, a 400 status code is returned."
+					},
+					"response": [
+						{
+							"name": "Active / deactivate a user  by external ID",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{back_api_url}}/ext/100/user/5/status?extId=05632&active=true",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										"100",
+										"user",
+										"5",
+										"status"
+									],
+									"query": [
+										{
+											"key": "extId",
+											"value": "05632"
+										},
+										{
+											"key": "active",
+											"value": "true"
+										}
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": ""
+						}
+					]
+				},
+				{
+					"name": "Get groups",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/group/list?dir=asc",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"group",
+								"list"
+							],
+							"query": [
+								{
+									"key": "dir",
+									"value": "asc",
+									"description": "direction (ascendant / descendant)"
+								}
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}",
+									"description": "Application ID"
+								}
+							]
+						},
+						"description": "Get the group list."
+					},
+					"response": [
+						{
+							"name": "Get groups - OK",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{back_api_url}}/ext/100/group/list?dir=direction (ascendant / descendant)",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										"100",
+										"group",
+										"list"
+									],
+									"query": [
+										{
+											"key": "dir",
+											"value": "direction (ascendant / descendant)"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"name": "Content-Type",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": "[\n  {\n    \"id\": 5,\n    \"label\": \"Group 1\"\n  },\n  {\n    \"id\": 6,\n    \"label\": \"Group 2\"\n  }\n]"
+						}
+					]
+				},
+				{
+					"name": "Get group members",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/group/:groupId/members?page=2&size=5&dir=asc&sort=login",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"group",
+								":groupId",
+								"members"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "2"
+								},
+								{
+									"key": "size",
+									"value": "5"
+								},
+								{
+									"key": "dir",
+									"value": "asc"
+								},
+								{
+									"key": "sort",
+									"value": "login"
+								}
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}",
+									"description": "Application ID"
+								},
+								{
+									"key": "groupId",
+									"value": null,
+									"description": "Group ID"
+								}
+							]
+						},
+						"description": "Get the group members.\n\n- If group is not found, a 400 status code is returned.\n- Max size by page is 1000\n- the result can be sorted by : login, email, extId, firstname, lastname"
+					},
+					"response": [
+						{
+							"name": "Get group members - OK",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{back_api_url}}/ext/100/group/5/members?page=2&size=5&dir=asc&sort=login",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										"100",
+										"group",
+										"5",
+										"members"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "2"
+										},
+										{
+											"key": "size",
+											"value": "5"
+										},
+										{
+											"key": "dir",
+											"value": "asc"
+										},
+										{
+											"key": "sort",
+											"value": "login"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json",
+									"name": "Content-Type",
+									"description": "",
+									"type": "text"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"items\": [\n    {\n      \"id\": 45,\n      \"extId\": \"05632\",\n      \"login\": \"user1\",\n      \"email\": \"user1@swizi.io\",\n      \"firstname\": \"Test\",\n      \"lastname\": \"User 1\",\n      \"phone\": \"\",\n      \"mobilePhone\": \"\",\n      \"company\": \"SWIZI\",\n      \"entity\": \"Entité 1\",\n      \"businessAddress\": \"My address 1\",\n      \"function\": \"Test\"\n    },\n    {\n      \"id\": 46,\n      \"extId\": \"05633\",\n      \"login\": \"user2\",\n      \"email\": \"user2@swizi.io\",\n      \"firstname\": \"Test\",\n      \"lastname\": \"User\",\n      \"phone\": \"\",\n      \"mobilePhone\": \"\",\n      \"company\": \"SWIZI\",\n      \"entity\": \"Entité 2\",\n      \"businessAddress\": \"My address 2\",\n      \"function\": \"Test\"\n    },\n    {\n      \"id\": 47,\n      \"extId\": \"05634\",\n      \"login\": \"user3\",\n      \"email\": \"user3@swizi.io\",\n      \"firstname\": \"Test\",\n      \"lastname\": \"User\",\n      \"phone\": \"\",\n      \"mobilePhone\": \"\",\n      \"company\": \"SWIZI\",\n      \"function\": \"Test\"\n    },\n    {\n      \"id\": 48,\n      \"extId\": \"05635\",\n      \"login\": \"user4\",\n      \"email\": \"user4@swizi.io\",\n      \"firstname\": \"Test\",\n      \"lastname\": \"User\",\n      \"phone\": \"\",\n      \"mobilePhone\": \"\",\n      \"company\": \"SWIZI\",\n      \"function\": \"Test\"\n    },\n    {\n      \"id\": 49,\n      \"extId\": \"05636\",\n      \"login\": \"user5\",\n      \"email\": \"user5@swizi.io\",\n      \"firstname\": \"Test\",\n      \"lastname\": \"User\",\n      \"phone\": \"\",\n      \"mobilePhone\": \"\",\n      \"company\": \"SWIZI\",\n      \"function\": \"Test\"\n    }\n  ],\n  \"nbItems\": 5,\n  \"totalItems\": 14,\n  \"currentPage\": 2,\n  \"previousPage\": 1,\n  \"nextPage\": 3\n}"
+						}
+					]
+				},
+				{
+					"name": "Add users to group",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userIds\": [45, 46]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/group/:groupId/members/add",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"group",
+								":groupId",
+								"members",
+								"add"
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}",
+									"description": "Application ID"
+								},
+								{
+									"key": "groupId",
+									"value": null,
+									"description": "Group ID"
+								}
+							]
+						},
+						"description": "Add users to group.\n\n- If group or one user is not found, a 400 status code is returned.\n- If some users are already in the group, there are ignored."
+					},
+					"response": [
+						{
+							"name": "Add users to group - OK",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"userIds\": [45, 46]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/100/group/5/members/add",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										"100",
+										"group",
+										"5",
+										"members",
+										"add"
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": ""
+						}
+					]
+				},
+				{
+					"name": "Remove users from group",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userIds\": [45, 46]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/group/:groupId/members/remove",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"group",
+								":groupId",
+								"members",
+								"remove"
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}",
+									"description": "Application ID"
+								},
+								{
+									"key": "groupId",
+									"value": null,
+									"description": "Group ID"
+								}
+							]
+						},
+						"description": "Remove users from group.\n\n- If group or one user is not found, a 400 status code is returned.\n- If some users are not in the group, there are ignored."
+					},
+					"response": [
+						{
+							"name": "Remove user from group - OK",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"userIds\": [45, 46]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/100/group/5/members/remove",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										"100",
+										"group",
+										"5",
+										"members",
+										"remove"
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "Text",
+							"header": [],
+							"cookie": [],
+							"body": ""
+						}
+					]
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Calendar",
+			"item": [
+				{
+					"name": "Create a room event",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "preferredIdFormat",
+								"value": "external",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"start\": \"2024-06-10T09:00:00.000Z\",\n    \"end\": \"2024-06-10T10:00:00.000Z\",\n    \"title\": \"Session 1 de la formation 1\",\n    \"organizer\":1527578,\n    \"description\": \"Un texte qui décrit le contenu de la session 1 de la formation 1\",\n    \"attendees\": [1527576, 1527577],\n    \"masterId\":\"Formation1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/calendar/room/:roomRef/event",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"calendar",
+								"room",
+								":roomRef",
+								"event"
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}",
+									"description": "Application ID"
+								},
+								{
+									"key": "roomRef",
+									"value": "ROOM1"
+								}
+							]
+						},
+						"description": "Create an event.\n\nThe event's organizer must be set in path with user's email.  \nIt is possible to add attendees to event. If an attendee is known from Swizi, the event will be added to it calendar.  \nIt is possible to add a location to the event. If the the location is kown as a space reference in Swizi, it calendar will be updated.  \nSwizi does not verifiy if an other event exists on the same time window. Conflicts must be manage by API user.\n\nAfter success, the event ID is returned."
+					},
+					"response": [
+						{
+							"name": "Create an event OK with externalId",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "preferredIdFormat",
+										"value": "external",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"start\": \"2024-06-10T09:00:00.000Z\",\n    \"end\": \"2024-06-10T10:00:00.000Z\",\n    \"title\": \"Session 1 de la formation 1\",\n    \"organizer\":\"usr1\",\n    \"description\": \"Un texte qui décrit le contenu de la session 1 de la formation 1\",\n    \"attendees\": [\"usr2\", \"usr3\"],\n    \"masterId\":\"Formation1\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/calendar/room/:roomRef/event",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"calendar",
+										"room",
+										":roomRef",
+										"event"
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}",
+											"description": "Application ID"
+										},
+										{
+											"key": "roomRef",
+											"value": "ROOM1"
+										}
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "60"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"3c-+qTb1kOG6hZjA3u4GANhOSCdkn8\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 22 Jan 2024 14:14:49 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"eventId\": \"65ae7859e95a3771db409ecd\",\n    \"unknownAttendees\": []\n}"
+						},
+						{
+							"name": "Create an event OK with unknown attendee",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "preferredIdFormat",
+										"value": "external",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"start\": \"2024-06-10T09:00:00.000Z\",\n    \"end\": \"2024-06-10T10:00:00.000Z\",\n    \"title\": \"Session 1 de la formation 1\",\n    \"organizer\":\"usr1\",\n    \"description\": \"Un texte qui décrit le contenu de la session 1 de la formation 1\",\n    \"attendees\": [\"usr2\", \"usr3\", \"unknownUser\"],\n    \"masterId\":\"Formation1\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/calendar/room/:roomRef/event",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"calendar",
+										"room",
+										":roomRef",
+										"event"
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}",
+											"description": "Application ID"
+										},
+										{
+											"key": "roomRef",
+											"value": "ROOM1"
+										}
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "73"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"49-vs4w/nMJwtXN2BNkIRujSx1l/mk\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 22 Jan 2024 14:15:59 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"eventId\": \"65ae789fe95a3771db409ed4\",\n    \"unknownAttendees\": [\n        \"unknownUser\"\n    ]\n}"
+						},
+						{
+							"name": "Create an event KO with unknown organizer",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "preferredIdFormat",
+										"value": "external",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"start\": \"2024-06-10T09:00:00.000Z\",\n    \"end\": \"2024-06-10T10:00:00.000Z\",\n    \"title\": \"Session 1 de la formation 1\",\n    \"organizer\":\"unknownUser\",\n    \"description\": \"Un texte qui décrit le contenu de la session 1 de la formation 1\",\n    \"attendees\": [\"usr2\", \"usr3\"],\n    \"masterId\":\"Formation1\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/calendar/room/:roomRef/event",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"calendar",
+										"room",
+										":roomRef",
+										"event"
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}",
+											"description": "Application ID"
+										},
+										{
+											"key": "roomRef",
+											"value": "ROOM1"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "128"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"80-BCwcOWJFDc5AWX15P8PUHw/z0yw\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 22 Jan 2024 14:16:40 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 400,\n    \"errors\": [\n        {\n            \"path\": \"organizer\",\n            \"errorCode\": \"invalid.organizer\",\n            \"message\": \"organizer not found\",\n            \"location\": \"body\"\n        }\n    ]\n}"
+						},
+						{
+							"name": "Create an event OK with swizi id",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"start\": \"2024-06-10T09:00:00.000Z\",\n    \"end\": \"2024-06-10T10:00:00.000Z\",\n    \"title\": \"Session 1 de la formation 1\",\n    \"organizer\":1527578,\n    \"description\": \"Un texte qui décrit le contenu de la session 1 de la formation 1\",\n    \"attendees\": [1527576, 1527577],\n    \"masterId\":\"Formation1\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/calendar/room/:roomRef/event",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"calendar",
+										"room",
+										":roomRef",
+										"event"
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}",
+											"description": "Application ID"
+										},
+										{
+											"key": "roomRef",
+											"value": "ROOM1"
+										}
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "60"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"3c-XLZDu+u4gy2xPMTyp/osTC4Vqro\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 22 Jan 2024 14:24:31 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"eventId\": \"65ae7a9fe95a3771db409ee1\",\n    \"unknownAttendees\": []\n}"
+						}
+					]
+				},
+				{
+					"name": "List room events",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "preferredIdFormat",
+								"value": "external",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"start\":\"2023-05-28T14:00:00.000Z\",\n  \"end\":\"2023-05-28T15:00:00.000Z\",\n  \"location\": \"R1_ROOM_3\",\n                \"title\": { \"fr\": \"L'object de l'évènement\", \"en\": \"An event subject\" },\n                \"description\": { \"fr\": \"La description de l'évènement\", \"en\": \"An event description\" }\n\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/calendar/room/:roomRef/event?start=2024-01-01T00:00:00.000Z&end=2025-05-29T00:00:00.000Z",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"calendar",
+								"room",
+								":roomRef",
+								"event"
+							],
+							"query": [
+								{
+									"key": "start",
+									"value": "2024-01-01T00:00:00.000Z",
+									"description": "Returns all events that take place after or from this date. The format is ISOString."
+								},
+								{
+									"key": "end",
+									"value": "2025-05-29T00:00:00.000Z",
+									"description": "Returns all events taking place before or up to this date. The format is ISOString."
+								}
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}",
+									"description": "Application ID"
+								},
+								{
+									"key": "roomRef",
+									"value": "ROOM1"
+								}
+							]
+						},
+						"description": "List all events from a user's calendar.  \nThey may come from events where the user is the organizer, or from events where the user is a guest."
+					},
+					"response": [
+						{
+							"name": "List room events OK with externalId",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "preferredIdFormat",
+										"value": "external",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n \"start\":\"2023-05-28T14:00:00.000Z\",\n  \"end\":\"2023-05-28T15:00:00.000Z\",\n  \"location\": \"R1_ROOM_3\",\n                \"title\": { \"fr\": \"L'object de l'évènement\", \"en\": \"An event subject\" },\n                \"description\": { \"fr\": \"La description de l'évènement\", \"en\": \"An event description\" }\n\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/calendar/room/:roomRef/event?start=2024-01-01T00:00:00.000Z&end=2025-05-29T00:00:00.000Z",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"calendar",
+										"room",
+										":roomRef",
+										"event"
+									],
+									"query": [
+										{
+											"key": "start",
+											"value": "2024-01-01T00:00:00.000Z",
+											"description": "Returns all events that take place after or from this date. The format is ISOString."
+										},
+										{
+											"key": "end",
+											"value": "2025-05-29T00:00:00.000Z",
+											"description": "Returns all events taking place before or up to this date. The format is ISOString."
+										}
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}",
+											"description": "Application ID"
+										},
+										{
+											"key": "roomRef",
+											"value": "ROOM1"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "3067"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"bfb-bgfLmcvInyIOHMrY7Wi0fnfphdE\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 22 Jan 2024 14:25:54 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"id\": \"65ae24b48feb0391ac093f71\",\n        \"start\": \"2024-01-24T09:00:00.000Z\",\n        \"end\": \"2024-01-25T10:00:00.000Z\",\n        \"organizer\": \"usr5\",\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 1 de la formation 1\",\n        \"attendees\": [\n            \"usr2\",\n            \"usr1\"\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 1 de la formation 1\",\n        \"masterId\": \"Formation1\"\n    },\n    {\n        \"id\": \"65ae70a4a61215647ec6818d\",\n        \"start\": \"2024-02-17T09:00:00.000Z\",\n        \"end\": \"2024-02-17T10:00:00.000Z\",\n        \"organizer\": \"usr1\",\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 2 de la formation 1\",\n        \"attendees\": [\n            \"usr2\",\n            \"usr4\"\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 1 de la formation 1\",\n        \"masterId\": \"Formation1\"\n    },\n    {\n        \"id\": \"65ae7024146a025f1199470a\",\n        \"start\": \"2024-02-17T09:00:00.000Z\",\n        \"end\": \"2024-02-17T10:00:00.000Z\",\n        \"organizer\": \"usr1\",\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 2 de la formation 1\",\n        \"attendees\": [\n            \"usr2\",\n            \"usr4\"\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 1 de la formation 1\",\n        \"masterId\": \"Formation1\"\n    },\n    {\n        \"id\": \"65ae2b8d892ed0be6ef56c68\",\n        \"start\": \"2024-02-17T09:00:00.000Z\",\n        \"end\": \"2024-02-17T10:00:00.000Z\",\n        \"organizer\": \"usr1\",\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 2 de la formation 1\",\n        \"attendees\": [\n            \"usr2\",\n            \"usr4\"\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 1 de la formation 1\",\n        \"masterId\": \"Formation1\"\n    },\n    {\n        \"id\": \"65ad55b31360e17dad190b66\",\n        \"start\": \"2024-04-12T09:00:00.000Z\",\n        \"end\": \"2024-04-12T10:00:00.000Z\",\n        \"organizer\": \"usr4\",\n        \"location\": \"ROOM1\",\n        \"title\": \"L'objet de l'évènement\",\n        \"attendees\": [\n            \"usr1\"\n        ],\n        \"description\": \"La description de l'évènement\"\n    },\n    {\n        \"id\": \"65ae7814e95a3771db409eba\",\n        \"start\": \"2024-06-08T09:00:00.000Z\",\n        \"end\": \"2024-06-08T10:00:00.000Z\",\n        \"organizer\": \"usr1\",\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 1 de la formation 3\",\n        \"attendees\": [\n            \"usr3\",\n            \"usr2\",\n            \"usr4\"\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 1 de la formation 3\",\n        \"masterId\": \"Formation3\"\n    },\n    {\n        \"id\": \"65ae7814e95a3771db409ebc\",\n        \"start\": \"2024-06-08T11:00:00.000Z\",\n        \"end\": \"2024-06-08T12:00:00.000Z\",\n        \"organizer\": \"usr1\",\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 2 de la formation 3\",\n        \"attendees\": [\n            \"usr3\",\n            \"usr2\",\n            \"usr4\"\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 2 de la formation 3\",\n        \"masterId\": \"Formation3\"\n    },\n    {\n        \"id\": \"65ae7a9fe95a3771db409ee1\",\n        \"start\": \"2024-06-10T09:00:00.000Z\",\n        \"end\": \"2024-06-10T10:00:00.000Z\",\n        \"organizer\": \"usr4\",\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 1 de la formation 1\",\n        \"attendees\": [\n            \"usr3\",\n            \"usr2\"\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 1 de la formation 1\",\n        \"masterId\": \"Formation1\"\n    },\n    {\n        \"id\": \"65ae789fe95a3771db409ed4\",\n        \"start\": \"2024-06-10T09:00:00.000Z\",\n        \"end\": \"2024-06-10T10:00:00.000Z\",\n        \"organizer\": \"usr1\",\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 1 de la formation 1\",\n        \"attendees\": [\n            \"usr3\",\n            \"usr2\"\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 1 de la formation 1\",\n        \"masterId\": \"Formation1\"\n    },\n    {\n        \"id\": \"65ae7859e95a3771db409ecd\",\n        \"start\": \"2024-06-10T09:00:00.000Z\",\n        \"end\": \"2024-06-10T10:00:00.000Z\",\n        \"organizer\": \"usr1\",\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 1 de la formation 1\",\n        \"attendees\": [\n            \"usr3\",\n            \"usr2\"\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 1 de la formation 1\",\n        \"masterId\": \"Formation1\"\n    }\n]"
+						},
+						{
+							"name": "List room events OK with Swizi Id",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n \"start\":\"2023-05-28T14:00:00.000Z\",\n  \"end\":\"2023-05-28T15:00:00.000Z\",\n  \"location\": \"R1_ROOM_3\",\n                \"title\": { \"fr\": \"L'object de l'évènement\", \"en\": \"An event subject\" },\n                \"description\": { \"fr\": \"La description de l'évènement\", \"en\": \"An event description\" }\n\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/calendar/room/:roomRef/event?start=2024-01-01T00:00:00.000Z&end=2025-05-29T00:00:00.000Z",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"calendar",
+										"room",
+										":roomRef",
+										"event"
+									],
+									"query": [
+										{
+											"key": "start",
+											"value": "2024-01-01T00:00:00.000Z",
+											"description": "Returns all events that take place after or from this date. The format is ISOString."
+										},
+										{
+											"key": "end",
+											"value": "2025-05-29T00:00:00.000Z",
+											"description": "Returns all events taking place before or up to this date. The format is ISOString."
+										}
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}",
+											"description": "Application ID"
+										},
+										{
+											"key": "roomRef",
+											"value": "ROOM1"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "3098"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"c1a-nR6b2J5R1aQEE7bx16v3HYXtNaY\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 22 Jan 2024 14:26:18 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"id\": \"65ae24b48feb0391ac093f71\",\n        \"start\": \"2024-01-24T09:00:00.000Z\",\n        \"end\": \"2024-01-25T10:00:00.000Z\",\n        \"organizer\": 1527579,\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 1 de la formation 1\",\n        \"attendees\": [\n            1527575,\n            1527576\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 1 de la formation 1\",\n        \"masterId\": \"Formation1\"\n    },\n    {\n        \"id\": \"65ae70a4a61215647ec6818d\",\n        \"start\": \"2024-02-17T09:00:00.000Z\",\n        \"end\": \"2024-02-17T10:00:00.000Z\",\n        \"organizer\": 1527575,\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 2 de la formation 1\",\n        \"attendees\": [\n            1527576,\n            1527578\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 1 de la formation 1\",\n        \"masterId\": \"Formation1\"\n    },\n    {\n        \"id\": \"65ae7024146a025f1199470a\",\n        \"start\": \"2024-02-17T09:00:00.000Z\",\n        \"end\": \"2024-02-17T10:00:00.000Z\",\n        \"organizer\": 1527575,\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 2 de la formation 1\",\n        \"attendees\": [\n            1527576,\n            1527578\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 1 de la formation 1\",\n        \"masterId\": \"Formation1\"\n    },\n    {\n        \"id\": \"65ae2b8d892ed0be6ef56c68\",\n        \"start\": \"2024-02-17T09:00:00.000Z\",\n        \"end\": \"2024-02-17T10:00:00.000Z\",\n        \"organizer\": 1527575,\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 2 de la formation 1\",\n        \"attendees\": [\n            1527576,\n            1527578\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 1 de la formation 1\",\n        \"masterId\": \"Formation1\"\n    },\n    {\n        \"id\": \"65ad55b31360e17dad190b66\",\n        \"start\": \"2024-04-12T09:00:00.000Z\",\n        \"end\": \"2024-04-12T10:00:00.000Z\",\n        \"organizer\": 1527578,\n        \"location\": \"ROOM1\",\n        \"title\": \"L'objet de l'évènement\",\n        \"attendees\": [\n            1527575\n        ],\n        \"description\": \"La description de l'évènement\"\n    },\n    {\n        \"id\": \"65ae7814e95a3771db409eba\",\n        \"start\": \"2024-06-08T09:00:00.000Z\",\n        \"end\": \"2024-06-08T10:00:00.000Z\",\n        \"organizer\": 1527575,\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 1 de la formation 3\",\n        \"attendees\": [\n            1527576,\n            1527577,\n            1527578\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 1 de la formation 3\",\n        \"masterId\": \"Formation3\"\n    },\n    {\n        \"id\": \"65ae7814e95a3771db409ebc\",\n        \"start\": \"2024-06-08T11:00:00.000Z\",\n        \"end\": \"2024-06-08T12:00:00.000Z\",\n        \"organizer\": 1527575,\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 2 de la formation 3\",\n        \"attendees\": [\n            1527576,\n            1527577,\n            1527578\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 2 de la formation 3\",\n        \"masterId\": \"Formation3\"\n    },\n    {\n        \"id\": \"65ae7a9fe95a3771db409ee1\",\n        \"start\": \"2024-06-10T09:00:00.000Z\",\n        \"end\": \"2024-06-10T10:00:00.000Z\",\n        \"organizer\": 1527578,\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 1 de la formation 1\",\n        \"attendees\": [\n            1527577,\n            1527576\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 1 de la formation 1\",\n        \"masterId\": \"Formation1\"\n    },\n    {\n        \"id\": \"65ae789fe95a3771db409ed4\",\n        \"start\": \"2024-06-10T09:00:00.000Z\",\n        \"end\": \"2024-06-10T10:00:00.000Z\",\n        \"organizer\": 1527575,\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 1 de la formation 1\",\n        \"attendees\": [\n            1527576,\n            1527577\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 1 de la formation 1\",\n        \"masterId\": \"Formation1\"\n    },\n    {\n        \"id\": \"65ae7859e95a3771db409ecd\",\n        \"start\": \"2024-06-10T09:00:00.000Z\",\n        \"end\": \"2024-06-10T10:00:00.000Z\",\n        \"organizer\": 1527575,\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 1 de la formation 1\",\n        \"attendees\": [\n            1527576,\n            1527577\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 1 de la formation 1\",\n        \"masterId\": \"Formation1\"\n    }\n]"
+						},
+						{
+							"name": "List room events KO because of date range",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "preferredIdFormat",
+										"value": "external",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n \"start\":\"2023-05-28T14:00:00.000Z\",\n  \"end\":\"2023-05-28T15:00:00.000Z\",\n  \"location\": \"R1_ROOM_3\",\n                \"title\": { \"fr\": \"L'object de l'évènement\", \"en\": \"An event subject\" },\n                \"description\": { \"fr\": \"La description de l'évènement\", \"en\": \"An event description\" }\n\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/calendar/room/:roomRef/event?start=2026-01-01T00:00:00.000Z&end=2025-05-29T00:00:00.000Z",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"calendar",
+										"room",
+										":roomRef",
+										"event"
+									],
+									"query": [
+										{
+											"key": "start",
+											"value": "2026-01-01T00:00:00.000Z",
+											"description": "Returns all events that take place after or from this date. The format is ISOString."
+										},
+										{
+											"key": "end",
+											"value": "2025-05-29T00:00:00.000Z",
+											"description": "Returns all events taking place before or up to this date. The format is ISOString."
+										}
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}",
+											"description": "Application ID"
+										},
+										{
+											"key": "roomRef",
+											"value": "ROOM1"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "137"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"89-Nne8u6ewn8NtJs3RMnwC4f3/hbs\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 22 Jan 2024 14:26:48 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 400,\n    \"errors\": [\n        {\n            \"path\": \"end\",\n            \"errorCode\": \"invalid.date\",\n            \"message\": \"End of slot must be after start of slot\",\n            \"location\": \"body\"\n        }\n    ]\n}"
+						},
+						{
+							"name": "List room events KO because of unknown location",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "preferredIdFormat",
+										"value": "external",
+										"type": "text",
+										"disabled": true
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n \"start\":\"2023-05-28T14:00:00.000Z\",\n  \"end\":\"2023-05-28T15:00:00.000Z\",\n  \"location\": \"R1_ROOM_3\",\n                \"title\": { \"fr\": \"L'object de l'évènement\", \"en\": \"An event subject\" },\n                \"description\": { \"fr\": \"La description de l'évènement\", \"en\": \"An event description\" }\n\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/calendar/room/:roomRef/event?start=2024-01-01T00:00:00.000Z&end=2025-05-29T00:00:00.000Z",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"calendar",
+										"room",
+										":roomRef",
+										"event"
+									],
+									"query": [
+										{
+											"key": "start",
+											"value": "2024-01-01T00:00:00.000Z",
+											"description": "Returns all events that take place after or from this date. The format is ISOString."
+										},
+										{
+											"key": "end",
+											"value": "2025-05-29T00:00:00.000Z",
+											"description": "Returns all events taking place before or up to this date. The format is ISOString."
+										}
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}",
+											"description": "Application ID"
+										},
+										{
+											"key": "roomRef",
+											"value": "ROOM11"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "145"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"91-eoH19bmc3eELfPZCq6JYCz93cwM\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 22 Jan 2024 14:27:18 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 400,\n    \"errors\": [\n        {\n            \"path\": \"location\",\n            \"errorCode\": \"invalid.location\",\n            \"message\": \"Location does not exist in referential\",\n            \"location\": \"body\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Get a room event",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "preferredIdFormat",
+								"value": "external",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/calendar/room/:roomRef/event/:eventId",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"calendar",
+								"room",
+								":roomRef",
+								"event",
+								":eventId"
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}",
+									"description": "Application ID"
+								},
+								{
+									"key": "roomRef",
+									"value": "ROOM1"
+								},
+								{
+									"key": "eventId",
+									"value": "65ae70a4a61215647ec6818"
+								}
+							]
+						},
+						"description": "Get a specific event from a user calendar."
+					},
+					"response": [
+						{
+							"name": "Get a room event OK",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "preferredIdFormat",
+										"value": "external",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/calendar/room/:roomRef/event/:eventId",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"calendar",
+										"room",
+										":roomRef",
+										"event",
+										":eventId"
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}",
+											"description": "Application ID"
+										},
+										{
+											"key": "roomRef",
+											"value": "ROOM1"
+										},
+										{
+											"key": "eventId",
+											"value": "65ae70a4a61215647ec6818d"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "311"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"137-sMyJeDzLYzfgd1fRnr230HbR4rs\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 22 Jan 2024 14:28:22 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"id\": \"65ae70a4a61215647ec6818d\",\n    \"start\": \"2024-02-17T09:00:00.000Z\",\n    \"end\": \"2024-02-17T10:00:00.000Z\",\n    \"organizer\": \"usr1\",\n    \"location\": \"ROOM1\",\n    \"title\": \"Session 2 de la formation 1\",\n    \"attendees\": [\n        \"usr2\",\n        \"usr4\"\n    ],\n    \"description\": \"Un texte qui décrit le contenu de la session 1 de la formation 1\",\n    \"masterId\": \"Formation1\"\n}"
+						},
+						{
+							"name": "Get a room event KO event not found",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "preferredIdFormat",
+										"value": "external",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/calendar/room/:roomRef/event/:eventId",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"calendar",
+										"room",
+										":roomRef",
+										"event",
+										":eventId"
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}",
+											"description": "Application ID"
+										},
+										{
+											"key": "roomRef",
+											"value": "ROOM1"
+										},
+										{
+											"key": "eventId",
+											"value": "65ae70a4a61215647ec6818e"
+										}
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "100"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"64-ZfoTCrOtL3MoExAqVdL7XDc7zNM\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 22 Jan 2024 14:31:40 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 404,\n    \"errors\": [\n        {\n            \"path\": \"eventId\",\n            \"errorCode\": \"invalid.event\",\n            \"message\": \"Event not found\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Update a room event",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "preferredIdFormat",
+								"value": "external",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"start\": \"2024-01-24T09:00:00.000Z\",\n    \"end\": \"2024-01-25T10:00:00.000Z\",\n    \"organizer\": \"usr5\",\n    \"title\": \"Un titre mis à jour\",\n    \"attendees\": [\n        \"usr2\",\n        \"usr1\"\n    ],\n    \"description\": \"Un texte mis à jour\",\n    \"masterId\": \"Formation1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/calendar/room/:roomRef/event/:eventId",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"calendar",
+								"room",
+								":roomRef",
+								"event",
+								":eventId"
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}",
+									"description": "Application ID"
+								},
+								{
+									"key": "roomRef",
+									"value": "ROOM1"
+								},
+								{
+									"key": "eventId",
+									"value": "65ae24b48feb0391ac093f71",
+									"description": "Event ID"
+								}
+							]
+						},
+						"description": "Update an event\n\n- Update a specific event from a user calendar.  \n    The user specified in path must be th event's organizer.\n- If an event attendee is known from Swizi, it calendar will be updated.\n- If the location is known from Swizi, it calendar will be updated."
+					},
+					"response": [
+						{
+							"name": "Update a room event OK",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "preferredIdFormat",
+										"value": "external",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"start\": \"2024-01-24T09:00:00.000Z\",\n    \"end\": \"2024-01-25T10:00:00.000Z\",\n    \"organizer\": \"usr5\",\n    \"title\": \"Un titre mis à jour\",\n    \"attendees\": [\n        \"usr2\",\n        \"usr1\"\n    ],\n    \"description\": \"Un texte mis à jour\",\n    \"masterId\": \"Formation1\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/calendar/room/:roomRef/event/:eventId",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"calendar",
+										"room",
+										":roomRef",
+										"event",
+										":eventId"
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}",
+											"description": "Application ID"
+										},
+										{
+											"key": "roomRef",
+											"value": "ROOM1"
+										},
+										{
+											"key": "eventId",
+											"value": "65ae24b48feb0391ac093f71",
+											"description": "Event ID"
+										}
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "60"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"3c-Mw9hovtiyvb39DaiN8VnM9fjL6I\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 22 Jan 2024 14:33:52 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"eventId\": \"65ae24b48feb0391ac093f71\",\n    \"unknownAttendees\": []\n}"
+						},
+						{
+							"name": "Update a room event KO event not found",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "preferredIdFormat",
+										"value": "external",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"start\": \"2024-01-24T09:00:00.000Z\",\n    \"end\": \"2024-01-25T10:00:00.000Z\",\n    \"organizer\": \"usr5\",\n    \"title\": \"Un titre mis à jour\",\n    \"attendees\": [\n        \"usr2\",\n        \"usr1\"\n    ],\n    \"description\": \"Un texte mis à jour\",\n    \"masterId\": \"Formation1\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/calendar/room/:roomRef/event/:eventId",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"calendar",
+										"room",
+										":roomRef",
+										"event",
+										":eventId"
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}",
+											"description": "Application ID"
+										},
+										{
+											"key": "roomRef",
+											"value": "ROOM1"
+										},
+										{
+											"key": "eventId",
+											"value": "65ae24b48feb0391ac093f7",
+											"description": "Event ID"
+										}
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "100"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"64-ZfoTCrOtL3MoExAqVdL7XDc7zNM\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 22 Jan 2024 14:35:07 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 404,\n    \"errors\": [\n        {\n            \"path\": \"eventId\",\n            \"errorCode\": \"invalid.event\",\n            \"message\": \"Event not found\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Cancel a room event",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"start\":\"2023-05-28T14:00:00.000Z\",\n  \"end\":\"2023-05-28T15:00:00.000Z\",\n  \"location\": \"R1_ROOM_3\",\n                \"title\": { \"fr\": \"L'object de l'évènement\", \"en\": \"An event subject\" },\n                \"description\": { \"fr\": \"La description de l'évènement\", \"en\": \"An event description\" }\n\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/calendar/room/:roomRef/event/:eventId",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"calendar",
+								"room",
+								":roomRef",
+								"event",
+								":eventId"
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}",
+									"description": "Application ID"
+								},
+								{
+									"key": "roomRef",
+									"value": "ROOM1"
+								},
+								{
+									"key": "eventId",
+									"value": "65ae24b48feb0391ac093f71",
+									"description": "Event ID"
+								}
+							]
+						},
+						"description": "Cancel an event\n\nCancel an event. The event must be organized by the user specified in the request path.  \nThe event will be removed from all attendees calendars."
+					},
+					"response": [
+						{
+							"name": "Cancel a room event OK",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n \"start\":\"2023-05-28T14:00:00.000Z\",\n  \"end\":\"2023-05-28T15:00:00.000Z\",\n  \"location\": \"R1_ROOM_3\",\n                \"title\": { \"fr\": \"L'object de l'évènement\", \"en\": \"An event subject\" },\n                \"description\": { \"fr\": \"La description de l'évènement\", \"en\": \"An event description\" }\n\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/calendar/room/:roomRef/event/:eventId",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"calendar",
+										"room",
+										":roomRef",
+										"event",
+										":eventId"
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}",
+											"description": "Application ID"
+										},
+										{
+											"key": "roomRef",
+											"value": "ROOM1"
+										},
+										{
+											"key": "eventId",
+											"value": "65ae24b48feb0391ac093f71",
+											"description": "Event ID"
+										}
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"a-bAsFyilMr4Ra1hIU5PyoyFRunpI\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 22 Jan 2024 14:36:00 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Cancel a room event KO event not found",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n \"start\":\"2023-05-28T14:00:00.000Z\",\n  \"end\":\"2023-05-28T15:00:00.000Z\",\n  \"location\": \"R1_ROOM_3\",\n                \"title\": { \"fr\": \"L'object de l'évènement\", \"en\": \"An event subject\" },\n                \"description\": { \"fr\": \"La description de l'évènement\", \"en\": \"An event description\" }\n\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/calendar/room/:roomRef/event/:eventId",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"calendar",
+										"room",
+										":roomRef",
+										"event",
+										":eventId"
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}",
+											"description": "Application ID"
+										},
+										{
+											"key": "roomRef",
+											"value": "ROOM1"
+										},
+										{
+											"key": "eventId",
+											"value": "65ae24b48feb0391ac093f81",
+											"description": "Event ID"
+										}
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "100"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"64-ZfoTCrOtL3MoExAqVdL7XDc7zNM\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 22 Jan 2024 14:36:26 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 404,\n    \"errors\": [\n        {\n            \"path\": \"eventId\",\n            \"errorCode\": \"invalid.event\",\n            \"message\": \"Event not found\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "List user events",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "preferredIdFormat",
+								"value": "external",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"start\":\"2023-05-28T14:00:00.000Z\",\n  \"end\":\"2023-05-28T15:00:00.000Z\",\n  \"location\": \"R1_ROOM_3\",\n                \"title\": { \"fr\": \"L'object de l'évènement\", \"en\": \"An event subject\" },\n                \"description\": { \"fr\": \"La description de l'évènement\", \"en\": \"An event description\" }\n\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/calendar/user/:userId/event?start=2024-01-01T00:00:00.000Z&end=2025-05-29T00:00:00.000Z",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"calendar",
+								"user",
+								":userId",
+								"event"
+							],
+							"query": [
+								{
+									"key": "start",
+									"value": "2024-01-01T00:00:00.000Z",
+									"description": "Returns all events that take place after or from this date. The format is ISOString."
+								},
+								{
+									"key": "end",
+									"value": "2025-05-29T00:00:00.000Z",
+									"description": "Returns all events taking place before or up to this date. The format is ISOString."
+								}
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}",
+									"description": "Application ID"
+								},
+								{
+									"key": "userId",
+									"value": "usr1"
+								}
+							]
+						},
+						"description": "List all events from a user's calendar.  \nThey may come from events where the user is the organizer, or from events where the user is a guest."
+					},
+					"response": [
+						{
+							"name": "List user events OK",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "preferredIdFormat",
+										"value": "external",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/calendar/user/:userId/event?start=2024-01-01T00:00:00.000Z&end=2025-05-29T00:00:00.000Z",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"calendar",
+										"user",
+										":userId",
+										"event"
+									],
+									"query": [
+										{
+											"key": "start",
+											"value": "2024-01-01T00:00:00.000Z",
+											"description": "Returns all events that take place after or from this date. The format is ISOString."
+										},
+										{
+											"key": "end",
+											"value": "2025-05-29T00:00:00.000Z",
+											"description": "Returns all events taking place before or up to this date. The format is ISOString."
+										}
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}",
+											"description": "Application ID"
+										},
+										{
+											"key": "userId",
+											"value": "usr1"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "2443"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"98b-qKdH8cEtyKRkvShCd12/sVji5Zs\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 22 Jan 2024 14:42:02 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"id\": \"65ae70a4a61215647ec6818d\",\n        \"start\": \"2024-02-17T09:00:00.000Z\",\n        \"end\": \"2024-02-17T10:00:00.000Z\",\n        \"organizer\": \"usr1\",\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 2 de la formation 1\",\n        \"attendees\": [\n            \"usr2\",\n            \"usr4\"\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 1 de la formation 1\",\n        \"masterId\": \"Formation1\"\n    },\n    {\n        \"id\": \"65ae7024146a025f1199470a\",\n        \"start\": \"2024-02-17T09:00:00.000Z\",\n        \"end\": \"2024-02-17T10:00:00.000Z\",\n        \"organizer\": \"usr1\",\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 2 de la formation 1\",\n        \"attendees\": [\n            \"usr2\",\n            \"usr4\"\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 1 de la formation 1\",\n        \"masterId\": \"Formation1\"\n    },\n    {\n        \"id\": \"65ae2b8d892ed0be6ef56c68\",\n        \"start\": \"2024-02-17T09:00:00.000Z\",\n        \"end\": \"2024-02-17T10:00:00.000Z\",\n        \"organizer\": \"usr1\",\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 2 de la formation 1\",\n        \"attendees\": [\n            \"usr2\",\n            \"usr4\"\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 1 de la formation 1\",\n        \"masterId\": \"Formation1\"\n    },\n    {\n        \"id\": \"65ad55b31360e17dad190b66\",\n        \"start\": \"2024-04-12T09:00:00.000Z\",\n        \"end\": \"2024-04-12T10:00:00.000Z\",\n        \"organizer\": \"usr4\",\n        \"location\": \"ROOM1\",\n        \"title\": \"L'objet de l'évènement\",\n        \"attendees\": [\n            \"usr1\"\n        ],\n        \"description\": \"La description de l'évènement\"\n    },\n    {\n        \"id\": \"65ae7814e95a3771db409eba\",\n        \"start\": \"2024-06-08T09:00:00.000Z\",\n        \"end\": \"2024-06-08T10:00:00.000Z\",\n        \"organizer\": \"usr1\",\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 1 de la formation 3\",\n        \"attendees\": [\n            \"usr3\",\n            \"usr2\",\n            \"usr4\"\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 1 de la formation 3\",\n        \"masterId\": \"Formation3\"\n    },\n    {\n        \"id\": \"65ae7814e95a3771db409ebc\",\n        \"start\": \"2024-06-08T11:00:00.000Z\",\n        \"end\": \"2024-06-08T12:00:00.000Z\",\n        \"organizer\": \"usr1\",\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 2 de la formation 3\",\n        \"attendees\": [\n            \"usr3\",\n            \"usr2\",\n            \"usr4\"\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 2 de la formation 3\",\n        \"masterId\": \"Formation3\"\n    },\n    {\n        \"id\": \"65ae789fe95a3771db409ed4\",\n        \"start\": \"2024-06-10T09:00:00.000Z\",\n        \"end\": \"2024-06-10T10:00:00.000Z\",\n        \"organizer\": \"usr1\",\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 1 de la formation 1\",\n        \"attendees\": [\n            \"usr3\",\n            \"usr2\"\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 1 de la formation 1\",\n        \"masterId\": \"Formation1\"\n    },\n    {\n        \"id\": \"65ae7859e95a3771db409ecd\",\n        \"start\": \"2024-06-10T09:00:00.000Z\",\n        \"end\": \"2024-06-10T10:00:00.000Z\",\n        \"organizer\": \"usr1\",\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 1 de la formation 1\",\n        \"attendees\": [\n            \"usr3\",\n            \"usr2\"\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 1 de la formation 1\",\n        \"masterId\": \"Formation1\"\n    }\n]"
+						},
+						{
+							"name": "List user events OK user not found",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "preferredIdFormat",
+										"value": "external",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/calendar/user/:userId/event?start=2024-01-01T00:00:00.000Z&end=2025-05-29T00:00:00.000Z",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"calendar",
+										"user",
+										":userId",
+										"event"
+									],
+									"query": [
+										{
+											"key": "start",
+											"value": "2024-01-01T00:00:00.000Z",
+											"description": "Returns all events that take place after or from this date. The format is ISOString."
+										},
+										{
+											"key": "end",
+											"value": "2025-05-29T00:00:00.000Z",
+											"description": "Returns all events taking place before or up to this date. The format is ISOString."
+										}
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}",
+											"description": "Application ID"
+										},
+										{
+											"key": "userId",
+											"value": "usr11"
+										}
+									]
+								}
+							},
+							"status": "Not Found",
+							"code": 404,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "118"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"76-rORDHEfzsZDWDLl1dug6aBXxOmQ\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 22 Jan 2024 14:44:12 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 404,\n    \"errors\": [\n        {\n            \"path\": \"id/extId\",\n            \"errorCode\": \"invalid.user\",\n            \"message\": \"user not found\",\n            \"location\": \"query\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "List masterId events",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "preferredIdFormat",
+								"value": "external",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/calendar/master/:masterEventId/event?start=2024-01-28T00:00:00.000Z&end=2025-05-29T00:00:00.000Z",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"calendar",
+								"master",
+								":masterEventId",
+								"event"
+							],
+							"query": [
+								{
+									"key": "start",
+									"value": "2024-01-28T00:00:00.000Z",
+									"description": "Returns all events that take place after or from this date. The format is ISOString."
+								},
+								{
+									"key": "end",
+									"value": "2025-05-29T00:00:00.000Z",
+									"description": "Returns all events taking place before or up to this date. The format is ISOString."
+								}
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}",
+									"description": "Application ID"
+								},
+								{
+									"key": "masterEventId",
+									"value": "room1"
+								}
+							]
+						},
+						"description": "List all events from a user's calendar.  \nThey may come from events where the user is the organizer, or from events where the user is a guest."
+					},
+					"response": [
+						{
+							"name": "List masterId events OK",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "preferredIdFormat",
+										"value": "external",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n \"start\":\"2023-05-28T14:00:00.000Z\",\n  \"end\":\"2023-05-28T15:00:00.000Z\",\n  \"location\": \"R1_ROOM_3\",\n                \"title\": { \"fr\": \"L'object de l'évènement\", \"en\": \"An event subject\" },\n                \"description\": { \"fr\": \"La description de l'évènement\", \"en\": \"An event description\" }\n\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/calendar/master/:masterEventId/event?start=2024-01-28T00:00:00.000Z&end=2025-05-29T00:00:00.000Z",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"calendar",
+										"master",
+										":masterEventId",
+										"event"
+									],
+									"query": [
+										{
+											"key": "start",
+											"value": "2024-01-28T00:00:00.000Z",
+											"description": "Returns all events that take place after or from this date. The format is ISOString."
+										},
+										{
+											"key": "end",
+											"value": "2025-05-29T00:00:00.000Z",
+											"description": "Returns all events taking place before or up to this date. The format is ISOString."
+										}
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}",
+											"description": "Application ID"
+										},
+										{
+											"key": "masterEventId",
+											"value": "Formation3"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "958"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"3be-LjI3NIX4pAaVm+/CBoxfyprXJRk\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 22 Jan 2024 14:44:54 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"id\": \"65ae7814e95a3771db409eba\",\n        \"start\": \"2024-06-08T09:00:00.000Z\",\n        \"end\": \"2024-06-08T10:00:00.000Z\",\n        \"organizer\": \"usr1\",\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 1 de la formation 3\",\n        \"attendees\": [\n            \"usr3\",\n            \"usr2\",\n            \"usr4\"\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 1 de la formation 3\",\n        \"masterId\": \"Formation3\"\n    },\n    {\n        \"id\": \"65ae7814e95a3771db409ebc\",\n        \"start\": \"2024-06-08T11:00:00.000Z\",\n        \"end\": \"2024-06-08T12:00:00.000Z\",\n        \"organizer\": \"usr1\",\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 2 de la formation 3\",\n        \"attendees\": [\n            \"usr3\",\n            \"usr2\",\n            \"usr4\"\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 2 de la formation 3\",\n        \"masterId\": \"Formation3\"\n    },\n    {\n        \"id\": \"65ae7814e95a3771db409ebe\",\n        \"start\": \"2024-06-08T14:00:00.000Z\",\n        \"end\": \"2024-06-08T16:00:00.000Z\",\n        \"organizer\": \"usr5\",\n        \"location\": \"ROOM2\",\n        \"title\": \"Session 3 de la formation 3\",\n        \"attendees\": [\n            \"usr3\",\n            \"usr2\",\n            \"usr4\"\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 3 de la formation 3\",\n        \"masterId\": \"Formation3\"\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "Replace events for a masterId",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "preferredIdFormat",
+								"value": "external",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n    {\n        \"start\": \"2024-06-08T09:00:00.000Z\",\n        \"end\": \"2024-06-08T10:00:00.000Z\",\n        \"organizer\": \"usr1\",\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 1 de la formation 3\",\n        \"attendees\": [\n            \"usr2\",\n            \"usr3\",\n            \"usr4\"\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 1 de la formation 3\"\n    },\n    {\n        \"start\": \"2024-06-08T11:00:00.000Z\",\n        \"end\": \"2024-06-08T12:00:00.000Z\",\n        \"organizer\": \"usr1\",\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 2 de la formation 3\",\n        \"attendees\": [\n            \"usr2\",\n            \"usr3\",\n            \"usr4\"\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 2 de la formation 3\"\n    },\n    {\n        \"start\": \"2024-06-08T14:00:00.000Z\",\n        \"end\": \"2024-06-08T16:00:00.000Z\",\n        \"organizer\": \"usr5\",\n        \"location\": \"ROOM2\",\n        \"title\": \"Session 3 de la formation 3\",\n        \"attendees\": [\n            \"usr2\",\n            \"usr3\",\n            \"usr4\"\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 3 de la formation 3\"\n    }\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/calendar/master/:masterEventId/event",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"calendar",
+								"master",
+								":masterEventId",
+								"event"
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}",
+									"description": "Application ID"
+								},
+								{
+									"key": "masterEventId",
+									"value": "Formation3"
+								}
+							]
+						},
+						"description": "List all events from a user's calendar.  \nThey may come from events where the user is the organizer, or from events where the user is a guest."
+					},
+					"response": [
+						{
+							"name": "Replace events for a masterId OK",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "preferredIdFormat",
+										"value": "external",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "[\n    {\n        \"start\": \"2024-06-08T09:00:00.000Z\",\n        \"end\": \"2024-06-08T10:00:00.000Z\",\n        \"organizer\": \"usr1\",\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 1 de la formation 3\",\n        \"attendees\": [\n            \"usr2\",\n            \"usr3\",\n            \"usr4\"\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 1 de la formation 3\"\n    },\n    {\n        \"start\": \"2024-06-08T11:00:00.000Z\",\n        \"end\": \"2024-06-08T12:00:00.000Z\",\n        \"organizer\": \"usr1\",\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 2 de la formation 3\",\n        \"attendees\": [\n            \"usr2\",\n            \"usr3\",\n            \"usr4\"\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 2 de la formation 3\"\n    },\n    {\n        \"start\": \"2024-06-08T14:00:00.000Z\",\n        \"end\": \"2024-06-08T16:00:00.000Z\",\n        \"organizer\": \"usr5\",\n        \"location\": \"ROOM2\",\n        \"title\": \"Session 3 de la formation 3\",\n        \"attendees\": [\n            \"usr2\",\n            \"usr3\",\n            \"usr4\"\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 3 de la formation 3\"\n    }\n]",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/calendar/master/:masterEventId/event",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"calendar",
+										"master",
+										":masterEventId",
+										"event"
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}",
+											"description": "Application ID"
+										},
+										{
+											"key": "masterEventId",
+											"value": "Formation3"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "117"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"75-PacalVUXhTs72Q9SCzuTTo/GP9Q\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 22 Jan 2024 14:45:13 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"eventIds\": [\n        \"65ae7f79c6933a2829518fea\",\n        \"65ae7f79c6933a2829518fe8\",\n        \"65ae7f79c6933a2829518fe6\"\n    ],\n    \"unknownAttendees\": []\n}"
+						},
+						{
+							"name": "Replace events for a masterId OK Cancel all slots",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "preferredIdFormat",
+										"value": "external",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "[\n]",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/calendar/master/:masterEventId/event",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"calendar",
+										"master",
+										":masterEventId",
+										"event"
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}",
+											"description": "Application ID"
+										},
+										{
+											"key": "masterEventId",
+											"value": "Formation3"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "37"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"25-5sgk+9dtCMDp0InLIyGWGsa6rzk\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 22 Jan 2024 14:47:59 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"eventIds\": [],\n    \"unknownAttendees\": []\n}"
+						},
+						{
+							"name": "Replace events for a masterId OK with unknown attendee",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "preferredIdFormat",
+										"value": "external",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "[\n    {\n        \"start\": \"2024-06-08T09:00:00.000Z\",\n        \"end\": \"2024-06-08T10:00:00.000Z\",\n        \"organizer\": \"usr1\",\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 1 de la formation 3\",\n        \"attendees\": [\n            \"usr2\",\n            \"usr3\",\n            \"usr4\"\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 1 de la formation 3\"\n    },\n    {\n        \"start\": \"2024-06-08T11:00:00.000Z\",\n        \"end\": \"2024-06-08T12:00:00.000Z\",\n        \"organizer\": \"usr1\",\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 2 de la formation 3\",\n        \"attendees\": [\n            \"usr2\",\n            \"usr3\",\n            \"usr4\"\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 2 de la formation 3\"\n    },\n    {\n        \"start\": \"2024-06-08T14:00:00.000Z\",\n        \"end\": \"2024-06-08T16:00:00.000Z\",\n        \"organizer\": \"usr5\",\n        \"location\": \"ROOM2\",\n        \"title\": \"Session 3 de la formation 3\",\n        \"attendees\": [\n            \"usr2\",\n            \"usr33\",\n            \"usr4\"\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 3 de la formation 3\"\n    }\n]",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/calendar/master/:masterEventId/event",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"calendar",
+										"master",
+										":masterEventId",
+										"event"
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}",
+											"description": "Application ID"
+										},
+										{
+											"key": "masterEventId",
+											"value": "Formation3"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "124"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"7c-LRnGrTJqWj4uUeV9uQfB+MbnEM0\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 22 Jan 2024 14:48:55 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"eventIds\": [\n        \"65ae805780c74c354abecd96\",\n        \"65ae805780c74c354abecd94\",\n        \"65ae805780c74c354abecd92\"\n    ],\n    \"unknownAttendees\": [\n        \"usr33\"\n    ]\n}"
+						},
+						{
+							"name": "Replace events for a masterId KO Unknown room",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "preferredIdFormat",
+										"value": "external",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "[\n    {\n        \"start\": \"2024-06-08T09:00:00.000Z\",\n        \"end\": \"2024-06-08T10:00:00.000Z\",\n        \"organizer\": \"usr1\",\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 1 de la formation 3\",\n        \"attendees\": [\n            \"usr2\",\n            \"usr3\",\n            \"usr4\"\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 1 de la formation 3\"\n    },\n    {\n        \"start\": \"2024-06-08T11:00:00.000Z\",\n        \"end\": \"2024-06-08T12:00:00.000Z\",\n        \"organizer\": \"usr1\",\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 2 de la formation 3\",\n        \"attendees\": [\n            \"usr2\",\n            \"usr3\",\n            \"usr4\"\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 2 de la formation 3\"\n    },\n    {\n        \"start\": \"2024-06-08T14:00:00.000Z\",\n        \"end\": \"2024-06-08T16:00:00.000Z\",\n        \"organizer\": \"usr5\",\n        \"location\": \"ROOM12\",\n        \"title\": \"Session 3 de la formation 3\",\n        \"attendees\": [\n            \"usr2\",\n            \"usr3\",\n            \"usr4\"\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 3 de la formation 3\"\n    }\n]",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/calendar/master/:masterEventId/event",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"calendar",
+										"master",
+										":masterEventId",
+										"event"
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}",
+											"description": "Application ID"
+										},
+										{
+											"key": "masterEventId",
+											"value": "Formation3"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "147"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"93-E7X6Cjv5kgCSOu74aZAjb0T24HQ\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 22 Jan 2024 14:49:24 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 400,\n    \"errors\": [\n        {\n            \"path\": \"2.location\",\n            \"errorCode\": \"invalid.location\",\n            \"message\": \"Location does not exist in referential\",\n            \"location\": \"body\"\n        }\n    ]\n}"
+						},
+						{
+							"name": "Replace events for a masterId KO Unknown organizer",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "preferredIdFormat",
+										"value": "external",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "[\n    {\n        \"start\": \"2024-06-08T09:00:00.000Z\",\n        \"end\": \"2024-06-08T10:00:00.000Z\",\n        \"organizer\": \"usr1\",\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 1 de la formation 3\",\n        \"attendees\": [\n            \"usr2\",\n            \"usr3\",\n            \"usr4\"\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 1 de la formation 3\"\n    },\n    {\n        \"start\": \"2024-06-08T11:00:00.000Z\",\n        \"end\": \"2024-06-08T12:00:00.000Z\",\n        \"organizer\": \"usr1\",\n        \"location\": \"ROOM1\",\n        \"title\": \"Session 2 de la formation 3\",\n        \"attendees\": [\n            \"usr2\",\n            \"usr3\",\n            \"usr4\"\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 2 de la formation 3\"\n    },\n    {\n        \"start\": \"2024-06-08T14:00:00.000Z\",\n        \"end\": \"2024-06-08T16:00:00.000Z\",\n        \"organizer\": \"usr55\",\n        \"location\": \"ROOM2\",\n        \"title\": \"Session 3 de la formation 3\",\n        \"attendees\": [\n            \"usr2\",\n            \"usr3\",\n            \"usr4\"\n        ],\n        \"description\": \"Un texte qui décrit le contenu de la session 3 de la formation 3\"\n    }\n]",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/calendar/master/:masterEventId/event",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"calendar",
+										"master",
+										":masterEventId",
+										"event"
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}",
+											"description": "Application ID"
+										},
+										{
+											"key": "masterEventId",
+											"value": "Formation3"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "130"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"82-nWd6iRDshv2Sye8OnhD4X+LG6Mg\""
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 22 Jan 2024 14:49:46 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 400,\n    \"errors\": [\n        {\n            \"path\": \"2.organizer\",\n            \"errorCode\": \"invalid.organizer\",\n            \"message\": \"organizer not found\",\n            \"location\": \"body\"\n        }\n    ]\n}"
+						}
+					]
+				}
+			],
+			"description": "This API allows you to manage Swizi calendars"
+		},
+		{
+			"name": "Site access",
+			"item": [
+				{
+					"name": "Update access code",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"code\": \"JIHBVO35ON\",\n    \"expiresAt\": \"2023-10-14T19:00:00.000Z\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/access/:siteId/accessCode?id=19",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"access",
+								":siteId",
+								"accessCode"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "19"
+								}
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}",
+									"description": "Application ID"
+								},
+								{
+									"key": "siteId",
+									"value": "{{siteId}}"
+								}
+							]
+						},
+						"description": "Remove users from group.\n\n- If group or one user is not found, a 400 status code is returned.\n- If some users are not in the group, there are ignored."
+					},
+					"response": [
+						{
+							"name": "Update access code with Swizi Id",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"code\": \"11214sytrdp1247\",\n    \"expiresAt\": \"2023-10-14T20:00:00.000Z\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/access/:siteId/accessCode?id=1496383",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"access",
+										":siteId",
+										"accessCode"
+									],
+									"query": [
+										{
+											"key": "extId",
+											"value": "05632",
+											"disabled": true
+										},
+										{
+											"key": "id",
+											"value": "1496383"
+										}
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}",
+											"description": "Application ID"
+										},
+										{
+											"key": "siteId",
+											"value": "13346"
+										}
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Mon, 25 Sep 2023 08:59:52 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"a-bAsFyilMr4Ra1hIU5PyoyFRunpI\""
+								}
+							],
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Update access code with external id",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"code\": \"11546REFre5666\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/access/:siteId/accessCode?id=1496383",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"access",
+										":siteId",
+										"accessCode"
+									],
+									"query": [
+										{
+											"key": "extId",
+											"value": "05632",
+											"disabled": true
+										},
+										{
+											"key": "id",
+											"value": "1496383"
+										}
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}",
+											"description": "Application ID"
+										},
+										{
+											"key": "siteId",
+											"value": "13346"
+										}
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Mon, 25 Sep 2023 08:57:02 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"a-bAsFyilMr4Ra1hIU5PyoyFRunpI\""
+								}
+							],
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Update access code KO",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"code\": \"11546REFre5666\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/access/:siteId/accessCode?id=1496383",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"access",
+										":siteId",
+										"accessCode"
+									],
+									"query": [
+										{
+											"key": "extId",
+											"value": "05632",
+											"disabled": true
+										},
+										{
+											"key": "id",
+											"value": "1496383"
+										}
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}",
+											"description": "Application ID"
+										},
+										{
+											"key": "siteId",
+											"value": "13346"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Mon, 25 Sep 2023 08:58:28 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "165"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"a5-HEkBGHIR9VpKFbTCvNBE+4CslKw\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 400,\n    \"errors\": [\n        {\n            \"path\": \"expiresAt\",\n            \"errorCode\": \"required.openapi.requestValidation\",\n            \"message\": \"must have required property 'expiresAt'\",\n            \"location\": \"body\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Get user access code",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/access/:siteId/accessCode?id=1527434",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"access",
+								":siteId",
+								"accessCode"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "1527434"
+								}
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}"
+								},
+								{
+									"key": "siteId",
+									"value": "13346",
+									"description": "Site ID"
+								}
+							]
+						},
+						"description": "Remove users from group.\n\n- If group or one user is not found, a 400 status code is returned.\n- If some users are not in the group, there are ignored."
+					},
+					"response": [
+						{
+							"name": "Get user access code from external id",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/access/:siteId/accessCode?extId=05632",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"access",
+										":siteId",
+										"accessCode"
+									],
+									"query": [
+										{
+											"key": "extId",
+											"value": "05632"
+										}
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}"
+										},
+										{
+											"key": "siteId",
+											"value": "13346",
+											"description": "Site ID"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Mon, 25 Sep 2023 09:00:27 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "66"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"42-ML2z70O2bdvVUvfejdvxiJfbCf8\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"accessCode\": \"JIHBVO35ON\",\n    \"expiresAt\": \"2023-10-14T19:00:00.000Z\"\n}"
+						},
+						{
+							"name": "Get user access code from Swizi Id",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/access/:siteId/accessCode?id=1496383",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"access",
+										":siteId",
+										"accessCode"
+									],
+									"query": [
+										{
+											"key": "extId",
+											"value": "05632",
+											"disabled": true
+										},
+										{
+											"key": "id",
+											"value": "1496383"
+										}
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}"
+										},
+										{
+											"key": "siteId",
+											"value": "13346",
+											"description": "Site ID"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Mon, 25 Sep 2023 09:00:55 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "66"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"42-ML2z70O2bdvVUvfejdvxiJfbCf8\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"accessCode\": \"JIHBVO35ON\",\n    \"expiresAt\": \"2023-10-14T19:00:00.000Z\"\n}"
+						},
+						{
+							"name": "Get user access code KO Swizi User not found",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/access/:siteId/accessCode?id=149638",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"access",
+										":siteId",
+										"accessCode"
+									],
+									"query": [
+										{
+											"key": "extId",
+											"value": "05632",
+											"disabled": true
+										},
+										{
+											"key": "id",
+											"value": "149638"
+										}
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}"
+										},
+										{
+											"key": "siteId",
+											"value": "13346",
+											"description": "Site ID"
+										}
+									]
+								}
+							},
+							"status": "Bad Request",
+							"code": 400,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Mon, 25 Sep 2023 09:02:05 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "140"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"8c-HEsttrOceLJJn09bVkmyH6Yyers\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"status\": 400,\n    \"errors\": [\n        {\n            \"path\": \"id/extId\",\n            \"errorCode\": \"required.openapi.requestValidation\",\n            \"message\": \"user not found\",\n            \"location\": \"query\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Remove a user access code",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/access/:siteId/accessCode?extId=05632",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"access",
+								":siteId",
+								"accessCode"
+							],
+							"query": [
+								{
+									"key": "extId",
+									"value": "05632"
+								}
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}",
+									"description": "Application ID"
+								},
+								{
+									"key": "siteId",
+									"value": "{{siteId}}",
+									"description": "Site ID"
+								}
+							]
+						},
+						"description": "Remove users from group.\n\n- If group or one user is not found, a 400 status code is returned.\n- If some users are not in the group, there are ignored."
+					},
+					"response": [
+						{
+							"name": "Remove a user access code from externalId",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/access/:siteId/accessCode?extId=05632",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"access",
+										":siteId",
+										"accessCode"
+									],
+									"query": [
+										{
+											"key": "extId",
+											"value": "05632"
+										}
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}",
+											"description": "Application ID"
+										},
+										{
+											"key": "siteId",
+											"value": "13346",
+											"description": "Site ID"
+										}
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Mon, 25 Sep 2023 09:02:21 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"a-bAsFyilMr4Ra1hIU5PyoyFRunpI\""
+								}
+							],
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Remove a user access code from Swizi id",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/access/:siteId/accessCode?id=1496383",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"access",
+										":siteId",
+										"accessCode"
+									],
+									"query": [
+										{
+											"key": "extId",
+											"value": "05632",
+											"disabled": true
+										},
+										{
+											"key": "id",
+											"value": "1496383"
+										}
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}",
+											"description": "Application ID"
+										},
+										{
+											"key": "siteId",
+											"value": "13346",
+											"description": "Site ID"
+										}
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Mon, 25 Sep 2023 09:02:45 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"a-bAsFyilMr4Ra1hIU5PyoyFRunpI\""
+								}
+							],
+							"cookie": [],
+							"body": null
+						}
+					]
+				},
+				{
+					"name": "Update a user presence status",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"isPresent\": true,\n    \"expiresAt\":\"2023-09-24T14:45:00.000Z\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/access/:siteId/presence?id=19",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"access",
+								":siteId",
+								"presence"
+							],
+							"query": [
+								{
+									"key": "extId",
+									"value": "05632",
+									"disabled": true
+								},
+								{
+									"key": "id",
+									"value": "19"
+								}
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}",
+									"description": "Application ID"
+								},
+								{
+									"key": "siteId",
+									"value": "{{siteId}}",
+									"description": "Site ID"
+								}
+							]
+						},
+						"description": "Remove users from group.\n\n- If group or one user is not found, a 400 status code is returned.\n- If some users are not in the group, there are ignored."
+					},
+					"response": [
+						{
+							"name": "Update a user presence status with Swizi Id and expiration date",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"isPresent\": true,\n    \"expiresAt\":\"2023-09-24T14:45:00.000Z\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/access/:siteId/presence?id=1496383",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"access",
+										":siteId",
+										"presence"
+									],
+									"query": [
+										{
+											"key": "extId",
+											"value": "05632",
+											"disabled": true
+										},
+										{
+											"key": "id",
+											"value": "1496383"
+										}
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}",
+											"description": "Application ID"
+										},
+										{
+											"key": "siteId",
+											"value": "13346",
+											"description": "Site ID"
+										}
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Mon, 25 Sep 2023 09:03:07 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"a-bAsFyilMr4Ra1hIU5PyoyFRunpI\""
+								}
+							],
+							"cookie": [],
+							"body": null
+						},
+						{
+							"name": "Update a user presence status with externalId and without expiration",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"isPresent\": true\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/access/:siteId/presence?extId=05632",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"access",
+										":siteId",
+										"presence"
+									],
+									"query": [
+										{
+											"key": "extId",
+											"value": "05632"
+										},
+										{
+											"key": "id",
+											"value": "1496383",
+											"disabled": true
+										}
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}",
+											"description": "Application ID"
+										},
+										{
+											"key": "siteId",
+											"value": "13346",
+											"description": "Site ID"
+										}
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Mon, 25 Sep 2023 09:03:27 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"a-bAsFyilMr4Ra1hIU5PyoyFRunpI\""
+								}
+							],
+							"cookie": [],
+							"body": null
+						}
+					]
+				},
+				{
+					"name": "Update a list of user presence status",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"idList\":[1496383, 11527430],\n    \"extIdList\":[\"05632\",\"abcde\"],\n    \"isPresent\": true,\n    \"expiresAt\":\"2023-09-25T10:00:00.000Z\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/access/:siteId/presence/bulk",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"access",
+								":siteId",
+								"presence",
+								"bulk"
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}",
+									"description": "Application ID"
+								},
+								{
+									"key": "siteId",
+									"value": "{{siteId}}",
+									"description": "Site ID"
+								}
+							]
+						},
+						"description": "Remove users from group.\n\n- If group or one user is not found, a 400 status code is returned.\n- If some users are not in the group, there are ignored."
+					},
+					"response": [
+						{
+							"name": "Update a list of user presence status with two unknown users",
+							"originalRequest": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"idList\":[1496383, 11527430],\n    \"extIdList\":[\"05632\",\"abcde\"],\n    \"isPresent\": true,\n    \"expiresAt\":\"2023-09-25T10:00:00.000Z\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/access/:siteId/presence/bulk",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"access",
+										":siteId",
+										"presence",
+										"bulk"
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}",
+											"description": "Application ID"
+										},
+										{
+											"key": "siteId",
+											"value": "13346",
+											"description": "Site ID"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Mon, 25 Sep 2023 09:07:23 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "67"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"43-cSW7jOUqwZx9Pk1L0zphuIjEvX0\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"updatedCount\": 2,\n    \"notFound\": {\n        \"ids\": [\n            11527430\n        ],\n        \"extIds\": [\n            \"abcde\"\n        ]\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get user presence status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/access/:siteId/presence?id=19",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"access",
+								":siteId",
+								"presence"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "19"
+								}
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}",
+									"description": "Application ID"
+								},
+								{
+									"key": "siteId",
+									"value": "{{siteId}}",
+									"description": "Site ID"
+								}
+							]
+						},
+						"description": "Remove users from group.\n\n- If group or one user is not found, a 400 status code is returned.\n- If some users are not in the group, there are ignored."
+					},
+					"response": [
+						{
+							"name": "Get user presence status from Swizi id",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/access/:siteId/presence?id=1496383",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"access",
+										":siteId",
+										"presence"
+									],
+									"query": [
+										{
+											"key": "extId",
+											"value": "05632",
+											"disabled": true
+										},
+										{
+											"key": "id",
+											"value": "1496383"
+										}
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}",
+											"description": "Application ID"
+										},
+										{
+											"key": "siteId",
+											"value": "13346",
+											"description": "Site ID"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Mon, 25 Sep 2023 09:53:22 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "57"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"39-ig82K9PwD5rUOIAtjgrtG/qKEiI\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"isPresent\": true,\n    \"expiresAt\": \"2023-09-25T10:00:00.000Z\"\n}"
+						},
+						{
+							"name": "Get user presence status from externalId",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/access/:siteId/presence?extId=05632",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"access",
+										":siteId",
+										"presence"
+									],
+									"query": [
+										{
+											"key": "extId",
+											"value": "05632"
+										}
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}",
+											"description": "Application ID"
+										},
+										{
+											"key": "siteId",
+											"value": "13346",
+											"description": "Site ID"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Date",
+									"value": "Mon, 25 Sep 2023 09:52:48 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "57"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"39-ig82K9PwD5rUOIAtjgrtG/qKEiI\""
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"isPresent\": true,\n    \"expiresAt\": \"2023-09-25T10:00:00.000Z\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Push & Alerts",
+			"item": [
+				{
+					"name": "Send a push notification to Swizi Users",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"users\": [\n        \"resident.dev@demo.swizi.io\"\n    ],\n    \"i18n\": [\n        {\n            \"locale\": \"fr\",\n            \"title\": \"Titre en français\",\n            \"message\": \"Contenu en français\"\n        },\n        {\n            \"locale\": \"en\",\n            \"title\": \"English title\",\n            \"message\": \"English title\"\n        }\n    ],\n    \"action\": {\n        \"url\": \"swz://views/11818\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/push",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"push"
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Send a push notification to Swizi App",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"users\": [\n        \"resident.dev@demo.swizi.io\"\n    ],\n    \"i18n\": [\n        {\n            \"locale\": \"fr\",\n            \"title\": \"Titre en français\",\n            \"message\": \"Contenu en français\"\n        },\n        {\n            \"locale\": \"en\",\n            \"title\": \"English title\",\n            \"message\": \"English title\"\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/push",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"push"
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "14"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"e-TGhWoa1NWLQcd5GZwQ674edMpXU\""
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 29 Sep 2023 14:26:50 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"unknown\": []\n}"
+						},
+						{
+							"name": "Send a push notification to Swizi Users with a section to open on tap",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"users\": [\n        \"resident.dev@demo.swizi.io\"\n    ],\n    \"i18n\": [\n        {\n            \"locale\": \"fr\",\n            \"title\": \"Titre en français\",\n            \"message\": \"Contenu en français\"\n        },\n        {\n            \"locale\": \"en\",\n            \"title\": \"English title\",\n            \"message\": \"English title\"\n        }\n    ],\n    \"action\": {\n        \"url\": \"swz://views/11818\"\n    }\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/push",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"push"
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "14"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"e-TGhWoa1NWLQcd5GZwQ674edMpXU\""
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 29 Sep 2023 14:26:10 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"unknown\": []\n}"
+						}
+					]
+				},
+				{
+					"name": "Send a push notification to group of users",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"groups\": [\n        \"MARKETING\",\n        \"COMMUNICATION\"\n    ],\n    \"i18n\": [\n        {\n            \"locale\": \"fr\",\n            \"title\": \"Titre en français\",\n            \"message\": \"Contenu en français\"\n        },\n        {\n            \"locale\": \"en\",\n            \"title\": \"English title\",\n            \"message\": \"English title\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/push",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"push"
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Send a push notification to group of users with some unkown groups",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"groups\": [\n        \"MARKETING\",\n        \"COMMUNICATION\"\n    ],\n    \"i18n\": [\n        {\n            \"locale\": \"fr\",\n            \"title\": \"Titre en français\",\n            \"message\": \"Contenu en français\"\n        },\n        {\n            \"locale\": \"en\",\n            \"title\": \"English title\",\n            \"message\": \"English title\"\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/push",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"push"
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "41"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"29-aS3jZQzUqpaVZqYux6EAkqr6hWo\""
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 29 Sep 2023 14:30:00 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"unknown\": [\n        \"MARKETING\",\n        \"COMMUNICATION\"\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Send alert to user",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"users\": [\n        \"resident.dev@demo.swizi.io\"\n    ],\n    \"i18n\": [\n        {\n            \"locale\": \"fr\",\n            \"title\": \"Titre en français\",\n            \"message\": \"Contenu en français\"\n        },\n        {\n            \"locale\": \"en\",\n            \"title\": \"English title\",\n            \"message\": \"English title\"\n        }\n    ],\n    \"expiration\": \"2023-11-01T00:00:00.000Z\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/alert",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"alert"
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Send alert to user with an expiration date/time",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"users\": [\n        \"resident.dev@demo.swizi.io\"\n    ],\n    \"i18n\": [\n        {\n            \"locale\": \"fr\",\n            \"title\": \"Titre en français\",\n            \"message\": \"Contenu en français\"\n        },\n        {\n            \"locale\": \"en\",\n            \"title\": \"English title\",\n            \"message\": \"English title\"\n        }\n    ],\n    \"expiration\": \"2023-11-01T00:00:00.000Z\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/alert",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"alert"
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "14"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"e-TGhWoa1NWLQcd5GZwQ674edMpXU\""
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 29 Sep 2023 14:34:42 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"unknown\": []\n}"
+						}
+					]
+				},
+				{
+					"name": "Send an alert to a group of users",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"groups\": [\n        \"DEMO_DEV_FACILITIES\"\n    ],\n    \"i18n\": [\n        {\n            \"locale\": \"fr\",\n            \"title\": \"Titre en français\",\n            \"message\": \"Contenu en français\"\n        },\n        {\n            \"locale\": \"en\",\n            \"title\": \"English title\",\n            \"message\": \"English title\"\n        }\n    ],\n    \"expiration\": \"2023-10-01T12:00:00.000Z\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{back_api_url}}/ext/:appId/alert",
+							"host": [
+								"{{back_api_url}}"
+							],
+							"path": [
+								"ext",
+								":appId",
+								"alert"
+							],
+							"variable": [
+								{
+									"key": "appId",
+									"value": "{{appId}}"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Send an alert to a group of users with an expiration date",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"groups\": [\n        \"DEMO_DEV_FACILITIES\"\n    ],\n    \"i18n\": [\n        {\n            \"locale\": \"fr\",\n            \"title\": \"Titre en français\",\n            \"message\": \"Contenu en français\"\n        },\n        {\n            \"locale\": \"en\",\n            \"title\": \"English title\",\n            \"message\": \"English title\"\n        }\n    ],\n    \"expiration\": \"2023-10-01T12:00:00.000Z\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{back_api_url}}/ext/:appId/alert",
+									"host": [
+										"{{back_api_url}}"
+									],
+									"path": [
+										"ext",
+										":appId",
+										"alert"
+									],
+									"variable": [
+										{
+											"key": "appId",
+											"value": "{{appId}}"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Expose-Headers",
+									"value": "access_token"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "14"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"e-TGhWoa1NWLQcd5GZwQ674edMpXU\""
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 29 Sep 2023 14:38:21 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"unknown\": []\n}"
+						}
+					]
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "oauth2",
+		"oauth2": [
+			{
+				"key": "clientSecret",
+				"value": "{{keycloak_client_secret_service}}",
+				"type": "string"
+			},
+			{
+				"key": "clientId",
+				"value": "{{keycloak_client_id_service}}",
+				"type": "string"
+			},
+			{
+				"key": "accessTokenUrl",
+				"value": "{{keycloak_url}}/auth/realms/{{keycloak_realm_client}}/protocol/openid-connect/token",
+				"type": "string"
+			},
+			{
+				"key": "grant_type",
+				"value": "client_credentials",
+				"type": "string"
+			},
+			{
+				"key": "addTokenTo",
+				"value": "header",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

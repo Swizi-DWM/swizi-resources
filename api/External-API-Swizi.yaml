@@ -1,0 +1,2496 @@
+---
+openapi: 3.0.0
+x-stoplight:
+  id: 0525aebfea5a2
+info:
+  title: External API Swizi
+  version: 1.1.0
+  description: "## General information\nThis document describes the SWIZI APIs used
+    for external services to manage some SWIZI services like users, groups, calendars
+    or push notifications.\n- All exchanges are in JSON format.\n- Each API’s call
+    returns a status code as well as a JSON when necessary. \n- The status is based
+    on HTTP standards.\n- An application ID is required in each API call, this value
+    is provided by SWIZI team.\n\n## Authentication\nThe API is protected by OIDC
+    Client Credentials flow.\nTo access your API, you must request an access token
+    for it. Then, you must pass the retrieved access token as a Bearer token in the
+    Authorization header of your HTTP request.\n\n| **Info** | **Description** |\n|
+    --- | --- |\n| REALM | Keycloak realm provided by SWIZI team |\n| CLIENT_ID |
+    Client ID provided by SWIZI team |\n| CLIENT_SECRET | Secret provided by SWIZI
+    team |\n| Discovery URL | https://keycloak.swizi.io/auth/realms/REALM/.well-known/openid-configuration
+    |\n\nGet an access token :\n```sh\ncurl --location 'https://keycloak.swizi.io/auth/realms/CREALM/protocol/openid-connect/token'
+    \\\n--header 'Content-Type: application/x-www-form-urlencoded' \\\n--data-urlencode
+    'grant_type=client_credentials' \\\n--data-urlencode 'client_id=CLIENT_ID' \\\n--data-urlencode
+    'client_secret=CLIENT_SECRET' \\\n--data-urlencode 'scope=openid'\n```\nResponse:
+    \n```json\n{\n    \"access_token\": \"eyJhbGciOiJSUzI1NiI...\",\n    \"expires_in\":
+    900,\n    \"refresh_expires_in\": 0,\n    \"token_type\": \"Bearer\",\n    \"id_token\":
+    \"eyJhbGciOiJSUzI1NiIsInR5...\",\n    \"not-before-policy\": 0,\n    \"scope\":
+    \"openid email profile\"\n}\n```\n\nThe lifetime of an access token is 15 minutes.\n\n##
+    API return’s codes\nGeneral description of status codes returned by APIs :\n\n|
+    **Status** | **Description** |\n| --- | --- |\n| 200 | Success with content in
+    response |\n| 204 | Success (no content expected) |\n| 400 | Bad request |\n|
+    403 | Access denied : invalid/expired token or invalid IDs |\n| 409 | Conflict
+    : entity already exists |\n| 500 | Internal error occured |\n\nIn case of errors,
+    the response has the following format:\n\n``` json\n{\n    \"status\": \"4XX|5XX\",\n
+    \   \"errors\": [\n        {\n            \"path\": \"specific property in query
+    or body\",\n            \"errorCode\": \"specific error code\",\n            \"message\":
+    \"specific error message\",\n            \"location\": \"query|body\"\n        }\n
+    \   ]\n}\n\n```\n\n## Endpoint\nThe general multi-tenant endpoint of API is `https://dwm-api.swizi.io`\nFor
+    clients who use dedicated tenant, please conatct Swizi team to get your dedicated
+    endpoint url.\n\n## Scope\nEach API functionality requires a specific permission
+    level (a role). If you do not have sufficient rights to access the functionality,
+    please contact Swizi support.\nThe permissions required are defined in the following
+    table.\n\n| API Feature | Required Role |\n|--|--|\n| Users |usergroup |\n| Groups
+    |usergroup |\n| Calendars  |calendar |\n| Site access |access | \n| Send a push
+    notification to a list of users | push |\n| Send a push notification to a list
+    of groups | pushGroup |\n| Send an alert to a list of users | alert |\n| Send
+    an alert to a list of groups | alertGroup |\n\n## Support\nFor further assistance,
+    please contact support@swizi.io\n"
+  contact:
+    name: Support Swizi
+    url: https://support.swizi.io
+    email: support@swizi.io
+servers:
+- url: https://dwm-api.swizi.io
+tags:
+- name: Calendars
+- name: Groups
+- name: Users
+- name: Notifications
+- name: Access
+paths:
+  "/ext/{appId}/user":
+    post:
+      tags:
+      - Users
+      summary: Create user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                extId: ext_user_id
+                login: user
+                email: user@swizi.io
+                firstname: Test
+                lastname: User
+                function: Test
+                company: SWIZI,
+                phone: ''
+                mobile: ''
+              properties:
+                extId:
+                  type: string
+                  description: External ID
+                login:
+                  type: string
+                  description: Login / username
+                email:
+                  type: string
+                  description: Email
+                firstname:
+                  type: string
+                  description: First name
+                lastname:
+                  type: string
+                  description: Last name
+                phone:
+                  type: string
+                  description: Phone
+                mobilePhone:
+                  type: string
+                  description: Mobile phone
+                company:
+                  type: string
+                  description: Company name
+                entity:
+                  type: string
+                  description: Entity
+                businessAddress:
+                  type: string
+                  description: Business address
+                function:
+                  type: string
+                  description: Function in company
+                groups:
+                  type: array
+                  description: Group IDs
+                  items:
+                    type: integer
+              required:
+              - email
+              - firstname
+              - lastname
+            examples:
+              Example 1:
+                value:
+                  extId: '05632'
+                  login: user
+                  email: user@swizi.io
+                  firstname: Test
+                  lastname: User
+                  phone: ''
+                  mobilePhone: ''
+                  company: SWIZI
+                  entity: Entité 1
+                  businessAddress: My address
+                  function: Test
+                  groups:
+                  - 5
+                  - 6
+        description: ''
+      parameters:
+      - name: appId
+        in: path
+        schema:
+          type: string
+        required: true
+        description: Application ID
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    description: User ID
+                required:
+                - id
+              examples:
+                Example 1:
+                  value:
+                    id: 45
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+              examples:
+                Example 1:
+                  value:
+                    status: 400
+                    errors:
+                    - path: groups
+                      errorCode: invalid.groups
+                      message: Some groups are invalid
+                      location: body
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+              examples:
+                Example 1:
+                  value:
+                    status: 409
+                    errors:
+                    - path: login/extId
+                      errorCode: conflict.user
+                      message: user already exists
+                      location: body
+      description: |-
+        Create a user.
+
+        - An exernal ID can be set to identify a user from an external service. It can be used to find/update a user instead of using the SWIZI user ID.
+        - If login is not set, email will be used as login by default.
+        - Login must be unique: if not, a 409 status code is returned.
+        - Groups can be assigned to user by using SWIZI group IDs.
+        - If one group ID is invalid, a 400 status code is returned.
+
+        After success, the user ID is returned.
+      operationId: createUser
+    put:
+      tags:
+      - Users
+      summary: Update user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: Email
+                firstname:
+                  type: string
+                  description: First name
+                lastname:
+                  type: string
+                  description: Last name
+                phone:
+                  type: string
+                  description: Phone
+                mobilePhone:
+                  type: string
+                  description: Mobile phone
+                company:
+                  type: string
+                  description: Company name
+                entity:
+                  type: string
+                  description: Entity
+                businessAddress:
+                  type: string
+                  description: Business address
+                function:
+                  type: string
+                  description: Function in company
+              required:
+              - firstname
+              - lastname
+            examples:
+              Example 1:
+                value:
+                  id: 45
+                  email: user@swizi.io
+                  firstname: Test
+                  lastname: User
+                  phone: ''
+                  mobilePhone: ''
+                  company: SWIZI
+                  entity: Entité 1
+                  businessAddress: My address
+                  function: Test
+      parameters:
+      - name: appId
+        in: path
+        schema:
+          type: string
+        required: true
+        description: Application ID
+      - schema:
+          type: integer
+          example: 45
+        in: query
+        name: id
+        description: Swizi ID
+      - schema:
+          type: string
+          example: '05632'
+        in: query
+        name: external ID
+        description: external ID
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FullUser"
+              examples:
+                Example 1:
+                  value:
+                    id: 45
+                    extId: '05632'
+                    login: user
+                    email: user@swizi.io
+                    firstname: Test
+                    lastname: User
+                    phone: ''
+                    mobilePhone: ''
+                    company: SWIZI
+                    entity: Entité 1
+                    function: Test
+                    enabled: true
+                    groups:
+                    - id: 5
+                      label: Group 1
+                    - id: 6
+                      label: Group 2
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+              examples:
+                Example 1:
+                  value:
+                    status: 400
+                    errors:
+                    - path: id/extId
+                      errorCode: required.openapi.requestValidation
+                      message: user not found
+                      location: query
+      description: |-
+        Update a user by its Swizi ID or external ID.
+
+        - Email can be updated if login is different from email.
+        - If user is not found by its ID, a 400 status code is returned.
+      operationId: updateUserById
+    parameters:
+    - schema:
+        type: integer
+        example: 100
+      name: appId
+      in: path
+      required: true
+      description: Application ID
+    get:
+      tags:
+      - Users
+      summary: Get a user
+      operationId: get-ext-appId-user
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/FullUser"
+              examples:
+                Example 1:
+                  value:
+                    id: 45
+                    extId: '05632'
+                    login: user
+                    email: user@swizi.io
+                    firstname: Test
+                    lastname: User
+                    phone: ''
+                    mobilePhone: ''
+                    company: SWIZI
+                    entity: Entité 1
+                    businessAddress: My address
+                    function: Test
+                    enabled: true
+                    groups:
+                    - id: 5
+                      label: Group 1
+                    - id: 6
+                      label: Group 2
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+              examples:
+                Example 1:
+                  value:
+                    status: 400
+                    errors:
+                    - path: id/extId
+                      errorCode: required.openapi.requestValidation
+                      message: user not found
+                      location: query
+      parameters:
+      - schema:
+          type: integer
+          example: 45
+        in: query
+        name: id
+        description: Swizi ID
+      - schema:
+          type: string
+          example: '05632'
+        in: query
+        name: extId
+        description: External ID
+      description: |-
+        Get a user by its Swizi ID or external ID.
+
+        If user is not found, a 400 status code is returned.
+    delete:
+      tags:
+      - Users
+      summary: Delete a user
+      operationId: delete-ext-appId-user
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+              examples:
+                Example 1:
+                  value:
+                    status: 400
+                    errors:
+                    - path: id/extId
+                      errorCode: required.openapi.requestValidation
+                      message: user not found
+                      location: query
+      description: |-
+        Delete a user by its Swizi ID or external ID.
+
+        If user is not found, a 400 status code is returned.
+      parameters:
+      - schema:
+          type: integer
+          example: 45
+        in: query
+        name: id
+        description: Swizi ID
+      - schema:
+          type: string
+          example: '05632'
+        in: query
+        name: extId
+        description: External ID
+  "/ext/{appId}/user/bulk/add":
+    post:
+      tags:
+      - Users
+      summary: Create bulk user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  extId:
+                    type: string
+                    description: External ID
+                  login:
+                    type: string
+                    description: Login / username
+                  email:
+                    type: string
+                    description: Email
+                  firstname:
+                    type: string
+                    description: First name
+                  lastname:
+                    type: string
+                    description: Last name
+                  phone:
+                    type: string
+                    description: Phone
+                  mobilePhone:
+                    type: string
+                    description: Mobile phone
+                  company:
+                    type: string
+                    description: Company name
+                  entity:
+                    type: string
+                    description: Entity
+                  businessAddress:
+                    type: string
+                    description: Business address
+                  function:
+                    type: string
+                    description: Function in company
+                  groups:
+                    type: array
+                    description: Group IDs
+                    items:
+                      type: integer
+                required:
+                - email
+                - firstname
+                - lastname
+            examples:
+              Example 1:
+                value:
+                - extId: '05632'
+                  login: user1
+                  email: user1@swizi.io
+                  firstname: Test
+                  lastname: User 1
+                  phone: ''
+                  mobilePhone: ''
+                  company: SWIZI
+                  entity: Entité 1
+                  businessAddress: My address 1
+                  function: Test
+                  groups:
+                  - 5
+                  - 6
+                - extId: '05633'
+                  login: user2
+                  email: user2@swizi.io
+                  firstname: Test
+                  lastname: User
+                  phone: ''
+                  mobile: ''
+                  company: SWIZI
+                  entity: Entité 2
+                  businessAddress: My address 2
+                  function: Test 2
+                  groups:
+                  - 5
+      parameters:
+      - name: appId
+        in: path
+        schema:
+          type: string
+        required: true
+        description: Application ID
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    extId:
+                      type: string
+                    login:
+                      type: string
+                  required:
+                  - id
+                  - extId
+                  - login
+              examples:
+                Example 1:
+                  value:
+                  - id: 45
+                    extId: '05632'
+                    login: user1
+                  - id: 46
+                    extId: '05633'
+                    login: user2
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+              examples:
+                Example 1:
+                  value:
+                    status: 400
+                    errors:
+                    - path: groups
+                      errorCode: invalid.groups
+                      message: Some groups are invalid
+                      location: body
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+              examples:
+                Example 1:
+                  value:
+                    status: 409
+                    errors:
+                    - path: login/extId
+                      errorCode: conflict.user
+                      message: user 'user1' already exists
+                      location: body
+      description: |-
+        Create users.
+
+        - An exernal ID can be set to identify a user from an external service. It can be used to find/update a user instead of using the SWIZI user ID.
+        - If login is not set, email will be used as login by default.
+        - Login must be unique: if one  already exists, a 409 http status code is returned.
+        - Groups can be assigned to user by setting te SWIZI group IDs.
+        - If one group ID is invalid, a 400 status code is returned.
+      operationId: createUsers
+    parameters:
+    - schema:
+        type: integer
+        example: 100
+      name: appId
+      in: path
+      required: true
+      description: Application ID
+  "/ext/{appId}/user/bulk/remove":
+    parameters:
+    - schema:
+        type: integer
+        example: 100
+      name: appId
+      in: path
+      required: true
+      description: Application ID
+    post:
+      tags:
+      - Users
+      summary: Delete bulk user
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+              examples:
+                Example 1:
+                  value:
+                    status: 400
+                    errors:
+                    - path: userIds
+                      errorCode: invalid.users
+                      message: Some users are invalid
+                      location: body
+      operationId: post-ext-appId-user-bulk-delete
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userIds:
+                  type: array
+                  description: User IDs
+                  items:
+                    type: integer
+              required:
+              - userIds
+            examples:
+              Example 1:
+                value:
+                  userIds:
+                  - 45
+                  - 46
+      description: |-
+        Delete users.
+
+        If one user is not found, a 400 status code is returned.
+  "/ext/{appId}/user/list":
+    get:
+      tags:
+      - Users
+      summary: Get users
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          example: 2
+        example: 1
+        description: page number
+        required: true
+      - name: size
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+          example: 5
+        example: 100
+        description: item size by page
+        required: true
+      - name: appId
+        in: path
+        schema:
+          type: string
+        required: true
+        description: Application ID
+      - schema:
+          type: string
+          enum:
+          - asc
+          - desc
+          example: asc
+        in: query
+        name: dir
+        required: true
+        description: direction (ascendant / descendant)
+      - schema:
+          type: string
+          enum:
+          - login
+          - email
+          - extId
+          - firstname
+          - lastname
+          example: login
+        in: query
+        name: sort
+        description: property for sorting
+        required: true
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    description: User list
+                    items:
+                      "$ref": "#/components/schemas/User"
+                  nbItems:
+                    type: integer
+                    description: Number of users in current page
+                  totalItems:
+                    type: integer
+                    description: Total number of users
+                  currentPage:
+                    type: integer
+                    description: Current page number
+                  previousPage:
+                    type: integer
+                    description: Previous page number
+                  nextPage:
+                    type: integer
+                    description: Next page number
+                required:
+                - items
+                - nbItems
+                - totalItems
+                - currentPage
+              examples:
+                Example 1:
+                  value:
+                    items:
+                    - id: 45
+                      extId: '05632'
+                      login: user1
+                      email: user1@swizi.io
+                      firstname: Test
+                      lastname: User 1
+                      phone: ''
+                      mobilePhone: ''
+                      company: SWIZI
+                      entity: Entité 1
+                      businessAddress: My address 1
+                      function: Test
+                    - id: 46
+                      extId: '05633'
+                      login: user2
+                      email: user2@swizi.io
+                      firstname: Test
+                      lastname: User
+                      phone: ''
+                      mobilePhone: ''
+                      company: SWIZI
+                      entity: Entité 2
+                      businessAddress: My address 2
+                      function: Test
+                    - id: 47
+                      extId: '05634'
+                      login: user3
+                      email: user3@swizi.io
+                      firstname: Test
+                      lastname: User
+                      phone: ''
+                      mobilePhone: ''
+                      company: SWIZI
+                      function: Test
+                    - id: 48
+                      extId: '05635'
+                      login: user4
+                      email: user4@swizi.io
+                      firstname: Test
+                      lastname: User
+                      phone: ''
+                      mobilePhone: ''
+                      company: SWIZI
+                      function: Test
+                    - id: 49
+                      extId: '05636'
+                      login: user5
+                      email: user5@swizi.io
+                      firstname: Test
+                      lastname: User
+                      phone: ''
+                      mobilePhone: ''
+                      company: SWIZI
+                      function: Test
+                    nbItems: 5
+                    totalItems: 14
+                    currentPage: 2
+                    previousPage: 1
+                    nextPage: 3
+      description: "Get the user list. \n\n- Max size by page is 1000\n- the result
+        can be sorted by : login, email, extId, firstname, lastname"
+      operationId: getUsers
+    parameters:
+    - schema:
+        type: integer
+        example: 100
+      name: appId
+      in: path
+      required: true
+      description: Application ID
+  "/ext/{appId}/user/picture":
+    parameters:
+    - schema:
+        type: integer
+        example: 100
+      name: appId
+      in: path
+      required: true
+      description: Application ID
+    post:
+      summary: Update user picture
+      tags:
+      - Users
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+              examples:
+                Example 1:
+                  value:
+                    status: 400
+                    errors:
+                    - path: id/extId
+                      errorCode: required.openapi.requestValidation
+                      message: user not found
+                      location: query
+      operationId: post-ext-appId-user-photo
+      description: |-
+        Update a user picture by its Swizi ID or external ID.
+
+        If user is not found, a 400 status code is returned.
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                picture:
+                  type: string
+                  format: binary
+                  description: User picture
+              required:
+              - picture
+      parameters:
+      - schema:
+          type: integer
+          example: 45
+        in: query
+        name: id
+        description: Swizi ID
+      - schema:
+          type: string
+          example: '05632'
+        in: query
+        name: extId
+        description: External ID
+    get:
+      summary: Get a user picture
+      operationId: get-ext-appId-user-picture
+      tags:
+      - Users
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+              examples:
+                Example 1:
+                  value:
+                    status: 400
+                    errors:
+                    - path: id/extId
+                      errorCode: required.openapi.requestValidation
+                      message: user not found
+                      location: query
+      description: |-
+        Get  a user picture by its Swizi ID or external ID.
+
+        - If user is not found, a 400 status code is returned.
+        - If no picture is found, a 204 status code is returned.
+      parameters:
+      - schema:
+          type: integer
+        in: query
+        name: id
+        description: Swizi ID
+      - schema:
+          type: string
+        in: query
+        name: extId
+        description: External ID
+  "/ext/{appId}/user/status":
+    post:
+      tags:
+      - Users
+      summary: Active / deactivate a user
+      parameters:
+      - name: appId
+        in: path
+        schema:
+          type: string
+        required: true
+        description: Application ID
+      - schema:
+          type: string
+          example: '45'
+        in: query
+        name: id
+        description: Swizi ID
+      - schema:
+          type: string
+          example: '05632'
+        in: query
+        name: extId
+        description: External ID
+      - schema:
+          type: boolean
+        in: query
+        name: active
+        description: true for active otherwise false
+        required: true
+      description: |-
+        Activate or deactivate a user by its Swizi ID or external ID.
+
+        If user is not found, a 400 status code is returned.
+      operationId: updateUserStatus
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+              examples:
+                Example 1:
+                  value:
+                    status: 400
+                    errors:
+                    - path: id/extId
+                      errorCode: required.openapi.requestValidation
+                      message: user not found
+                      location: query
+    parameters:
+    - schema:
+        type: integer
+        example: 100
+      name: appId
+      in: path
+      required: true
+      description: Application ID
+  "/ext/{appId}/group/list":
+    get:
+      tags:
+      - Groups
+      summary: Get groups
+      parameters:
+      - name: appId
+        in: path
+        schema:
+          type: string
+        required: true
+        description: Application ID
+      - schema:
+          type: string
+          enum:
+          - asc
+          - desc
+          example: asc
+        in: query
+        name: dir
+        required: true
+        description: direction (ascendant / descendant)
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: array
+                description: Groups
+                items:
+                  "$ref": "#/components/schemas/Group"
+              examples:
+                Example 1:
+                  value:
+                  - id: 5
+                    label: Group 1
+                  - id: 6
+                    label: Group 2
+      description: Get the group list.
+      operationId: getGroups
+    parameters:
+    - schema:
+        type: integer
+        example: 100
+      name: appId
+      in: path
+      required: true
+      description: Application ID
+  "/ext/{appId}/group/{groupId}/members":
+    parameters:
+    - schema:
+        type: integer
+        example: 100
+      name: appId
+      in: path
+      required: true
+      description: Application ID
+    - schema:
+        type: integer
+        example: 5
+      name: groupId
+      in: path
+      required: true
+      description: Group Id
+    get:
+      summary: Get group members
+      tags:
+      - Groups
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    description: User list
+                    items:
+                      "$ref": "#/components/schemas/User"
+                  nbItems:
+                    type: integer
+                    description: Number of users in current page
+                  totalItems:
+                    type: integer
+                    description: Total number of users
+                  previousPage:
+                    type: integer
+                    description: Previous page number
+                  currentPage:
+                    type: integer
+                    description: Current page number
+                  nextPage:
+                    type: integer
+                    description: Next page number
+                required:
+                - nbItems
+                - totalItems
+                - currentPage
+              examples:
+                Example 1:
+                  value:
+                    items:
+                    - id: 45
+                      extId: '05632'
+                      login: user1
+                      email: user1@swizi.io
+                      firstname: Test
+                      lastname: User 1
+                      phone: ''
+                      mobilePhone: ''
+                      company: SWIZI
+                      entity: Entité 1
+                      businessAddress: My address 1
+                      function: Test
+                    - id: 46
+                      extId: '05633'
+                      login: user2
+                      email: user2@swizi.io
+                      firstname: Test
+                      lastname: User
+                      phone: ''
+                      mobilePhone: ''
+                      company: SWIZI
+                      entity: Entité 2
+                      businessAddress: My address 2
+                      function: Test
+                    - id: 47
+                      extId: '05634'
+                      login: user3
+                      email: user3@swizi.io
+                      firstname: Test
+                      lastname: User
+                      phone: ''
+                      mobilePhone: ''
+                      company: SWIZI
+                      function: Test
+                    - id: 48
+                      extId: '05635'
+                      login: user4
+                      email: user4@swizi.io
+                      firstname: Test
+                      lastname: User
+                      phone: ''
+                      mobilePhone: ''
+                      company: SWIZI
+                      function: Test
+                    - id: 49
+                      extId: '05636'
+                      login: user5
+                      email: user5@swizi.io
+                      firstname: Test
+                      lastname: User
+                      phone: ''
+                      mobilePhone: ''
+                      company: SWIZI
+                      function: Test
+                    nbItems: 5
+                    totalItems: 14
+                    currentPage: 2
+                    previousPage: 1
+                    nextPage: 3
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+              examples:
+                Example 1:
+                  value:
+                    status: 400
+                    errors:
+                    - path: groupId
+                      errorCode: invalid.groupId
+                      message: group not found
+                      location: query
+      operationId: getGroupMembers
+      description: |-
+        Get the group members.
+
+        - If group is not found, a 400 status code is returned.
+        - Max size by page is 1000
+        - the result can be sorted by : login, email, extId, firstname, lastname
+      parameters:
+      - schema:
+          type: integer
+          minimum: 1
+          example: 2
+        in: query
+        name: page
+        required: true
+        description: page number
+      - schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+          example: 5
+        in: query
+        name: size
+        required: true
+        description: item size by page
+      - schema:
+          type: string
+          enum:
+          - asc
+          - desc
+          example: asc
+        in: query
+        name: dir
+        description: direction (ascendant / descendant)
+        required: true
+      - schema:
+          type: string
+          example: login
+          enum:
+          - login
+          - email
+          - extId
+          - firstname
+          - lastname
+        in: query
+        name: sort
+        description: property for sorting
+        required: true
+  "/ext/{appId}/group/{groupId}/members/add":
+    parameters:
+    - schema:
+        type: integer
+        example: 100
+      name: appId
+      in: path
+      required: true
+      description: Application ID
+    - schema:
+        type: integer
+        example: 5
+      name: groupId
+      in: path
+      required: true
+      description: Group ID
+    post:
+      tags:
+      - Groups
+      summary: Add group members
+      operationId: addGroupMembers
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+              examples:
+                Example 1:
+                  value:
+                    status: 400
+                    errors:
+                    - path: groupId
+                      errorCode: invalid.groupId
+                      message: group not found
+                      location: query
+      description: |-
+        Add users to group.
+
+        - If group or one user is not found, a 400 status code is returned.
+        - If some users are already in the group, there are ignored.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userIds:
+                  type: array
+                  description: User IDs
+                  items:
+                    type: integer
+                    minimum: 1
+              required:
+              - userIds
+            examples:
+              Example 1:
+                value:
+                  userIds:
+                  - 45
+                  - 46
+  "/ext/{appId}/group/{groupId}/members/remove":
+    parameters:
+    - schema:
+        type: integer
+        example: 100
+      name: appId
+      in: path
+      required: true
+      description: Application ID
+    - schema:
+        type: integer
+        example: 5
+      name: groupId
+      in: path
+      required: true
+      description: Group Id
+    post:
+      tags:
+      - Groups
+      summary: Remove group members
+      operationId: removeGroupMembers
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+              examples:
+                Example 1:
+                  value:
+                    status: 400
+                    errors:
+                    - path: groupId
+                      errorCode: invalid.groupId
+                      message: group not found
+                      location: query
+      description: |-
+        Remove users from group.
+
+        - If group or one user is not found, a 400 status code is returned.
+        - If some users are not in the group, there are ignored.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userIds:
+                  type: array
+                  description: User IDs
+                  items:
+                    type: integer
+              required:
+              - userIds
+            examples:
+              Example 1:
+                value:
+                  userIds:
+                  - 45
+                  - 46
+  "/ext/{appId}/access/{siteId}/accessCode":
+    patch:
+      tags:
+      - Users
+      summary: Update user access code
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                  description: A code to be displayed in QRCode.
+                  maxLength: 50
+                  minLength: 1
+                expiresAt:
+                  type: string
+                  description: ISOString Date of code expiration date & time
+              required:
+              - code
+              - expiresAt
+            examples:
+              Example 1:
+                value:
+                  code: JIHBVO35ON
+                  expiresAt: '2023-09-14T19:00:00.000Z'
+      parameters:
+      - name: appId
+        in: path
+        schema:
+          type: string
+        required: true
+        description: Application ID
+      - schema:
+          type: integer
+          example: 45
+        in: query
+        name: id
+        description: Swizi ID
+      - schema:
+          type: string
+          example: '05632'
+        in: query
+        name: extId
+        description: external ID
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+              examples:
+                Example 1:
+                  value:
+                    status: 400
+                    errors:
+                    - path: id/extId
+                      errorCode: required.openapi.requestValidation
+                      message: user not found
+                      location: query
+      description: |-
+        Update a user access code to a site by its Swizi ID or external ID.
+
+        - If user is not found by its ID, a 400 status code is returned.
+        - If site is not found by its ID, a 400 status code is returned
+      operationId: updateUserAccessCode
+    parameters:
+    - schema:
+        type: integer
+        example: 100
+      name: appId
+      in: path
+      required: true
+      description: Application ID
+    - schema:
+        type: string
+      name: siteId
+      in: path
+      required: true
+    delete:
+      tags:
+      - Users
+      summary: Delete a user access code
+      operationId: deleteUserAccessCode
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+              examples:
+                Example 1:
+                  value:
+                    status: 400
+                    errors:
+                    - path: id/extId
+                      errorCode: required.openapi.requestValidation
+                      message: user not found
+                      location: query
+      description: |-
+        Delete a user access code.
+
+        - If user is not found, a 400 status code is returned.
+        - If site is not found by its ID, a 400 status code is returned
+      parameters:
+      - schema:
+          type: integer
+          example: 45
+        in: query
+        name: id
+        description: Swizi ID
+      - schema:
+          type: string
+          example: '05632'
+        in: query
+        name: extId
+        description: External ID
+    get:
+      summary: Get user access code
+      operationId: getUseAccessCode
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessCode:
+                    type: string
+                    description: accessCode if exists
+                  expiresAt:
+                    type: string
+                    description: access code expiration date ISOString format
+            application/xml:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+        '400':
+          description: Bad Request
+      description: |-
+        Get current user access code to a site by its Swizi ID or external ID.
+
+        - If user is not found by its ID, a 400 status code is returned.
+        - If site is not found by its ID, a 400 status code is returned
+      parameters:
+      - schema:
+          type: string
+        in: query
+        name: id
+        description: Swizi ID
+      - schema:
+          type: string
+        in: query
+        name: extId
+        description: External ID
+      tags:
+      - Access
+  "/ext/{appId}/access/{siteId}/presence":
+    patch:
+      tags:
+      - Users
+      summary: Update user presence on a site
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                isPresent:
+                  type: boolean
+                expiresAt:
+                  type: string
+                  description: if this field is filled with a date (ISOString format),
+                    the user's presence will be forced to false after this date. Presence
+                    and expiry dates are checked every hour.
+              required:
+              - isPresent
+            examples:
+              Example 1:
+                value:
+                  isPresent: true
+      parameters:
+      - name: appId
+        in: path
+        schema:
+          type: string
+        required: true
+        description: Application ID
+      - schema:
+          type: integer
+          example: 45
+        in: query
+        name: id
+        description: Swizi ID
+      - schema:
+          type: string
+          example: '05632'
+        in: query
+        name: extId
+        description: external ID
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+              examples:
+                Example 1:
+                  value:
+                    status: 400
+                    errors:
+                    - path: id/extId
+                      errorCode: required.openapi.requestValidation
+                      message: user not found
+                      location: query
+      description: |-
+        Update a user presence status (ie if user is physically present on the site).
+
+        - If user is not found by its ID, a 400 status code is returned.
+        - If site is not found by its ID, a 400 status code is returned.
+      operationId: updateUserPresence
+    parameters:
+    - schema:
+        type: integer
+        example: 100
+      name: appId
+      in: path
+      required: true
+      description: Application ID
+    - schema:
+        type: string
+      name: siteId
+      in: path
+      required: true
+    get:
+      summary: Get user presence on a site
+      operationId: getUserPresence
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isPresent:
+                    type: boolean
+                    description: is user currently present on site
+                  expiresAt:
+                    type: string
+                    description: If set, presence will be updated to false after this
+                      date. ISO String format
+                required:
+                - isPresent
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+      description: |-
+        Get  user presence status (ie if user is physically present on the site).
+
+        - If user is not found by its ID, a 400 status code is returned.
+        - If site is not found by its ID, a 400 status code is returned.
+      parameters:
+      - schema:
+          type: string
+        in: query
+        name: id
+        description: Swizi ID
+      - schema:
+          type: string
+        in: query
+        name: extId
+        description: External ID
+      tags:
+      - Access
+  "/ext/{appId}/{siteId}/presence/bulk":
+    patch:
+      summary: Update user presence on a site
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                idList:
+                  type: array
+                  items:
+                    type: number
+                extIdList:
+                  type: array
+                  items:
+                    type: string
+                isPresent:
+                  type: boolean
+                expiresAt:
+                  type: string
+                  description: if this field is filled with a date (ISOString format),
+                    the user's presence will be forced to false after this date. Presence
+                    and expiry dates are checked every hour.
+              required:
+              - isPresent
+            examples:
+              Example 1:
+                value:
+                  isPresent: true
+      parameters:
+      - name: appId
+        in: path
+        schema:
+          type: string
+        required: true
+        description: Application ID
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  updatedCount:
+                    type: number
+                    description: number of updated users
+                  notFound:
+                    type: object
+                    properties:
+                      ids:
+                        type: array
+                        description: list of swizi user id not found
+                        items:
+                          type: number
+                      extIds:
+                        type: array
+                        description: list of external user id not found
+                        items:
+                          type: string
+                required:
+                - updatedCount
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+              examples:
+                Example 1:
+                  value:
+                    status: 400
+                    errors:
+                    - path: id/extId
+                      errorCode: required.openapi.requestValidation
+                      message: user not found
+                      location: query
+      description: Update a list of users presence status (ie if user is physically
+        present on the site). Users have the same status and expiration date (if an
+        expiration date is set)
+      operationId: updateUserPresenceBulk
+      tags:
+      - Access
+    parameters:
+    - schema:
+        type: integer
+        example: 100
+      name: appId
+      in: path
+      required: true
+      description: Application ID
+    - schema:
+        type: string
+      name: siteId
+      in: path
+      required: true
+  "/ext/{appId}/calendar/user/{userId}/event":
+    parameters:
+    - schema:
+        type: string
+      name: appId
+      in: path
+      required: true
+      description: Swizi projet id
+    - schema:
+        type: string
+      name: userId
+      in: path
+      required: true
+      description: User Swizi id or external id depends on preferedIdFormat header
+    get:
+      summary: List all events for a user
+      description: List all events from a user's calendar
+      tags:
+      - Calendars
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  "$ref": "#/components/schemas/EventRead"
+              examples: {}
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+              examples:
+                Example 1:
+                  value:
+                    status: 400
+                    errors:
+                    - path: id/extId
+                      errorCode: required.openapi.requestValidation
+                      message: user not found
+                      location: query
+      operationId: get-ext-appId-calendar-user-userId-event
+      parameters:
+      - schema:
+          type: string
+        in: query
+        name: start
+        description: Returns all events that take place after or from this date. The
+          format is ISOString.
+        required: true
+      - schema:
+          type: string
+        in: query
+        name: end
+        description: Returns all events taking place before or up to this date. The
+          format is ISOString.
+        required: true
+      - schema:
+          type: string
+          default: internal
+          enum:
+          - internal
+          - external
+        in: header
+        name: preferredIdFormat
+        description: This header defined the kind of id used in request. You can set
+          it to external to user externalId or internal to use Swizi id
+  "/ext/{appId}/calendar/room/{roomRef}/event/{eventId}":
+    parameters:
+    - schema:
+        type: string
+      name: appId
+      in: path
+      required: true
+      description: Swizi projet id
+    - schema:
+        type: string
+      name: roomRef
+      in: path
+      required: true
+      description: Location reference from Swizi DBRM
+    - schema:
+        type: string
+      name: eventId
+      in: path
+      required: true
+      description: Event id from Swizi
+    get:
+      summary: Get an event from room calendar
+      tags:
+      - Calendars
+      description: Get a specific event from a room calendar.
+      operationId: get-ext-appId-calendar-owner-email-event-eventId
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/EventRead"
+              examples: {}
+      parameters:
+      - schema:
+          type: string
+          enum:
+          - internal
+          - external
+          default: internal
+        in: header
+        name: preferredIdFormat
+        description: This header defined the kind of id used in request. You can set
+          it to external to user externalId or internal to use Swizi id
+    patch:
+      operationId: patch-ext-appId-calendar-owner-email-event
+      summary: Update an event from room calendar
+      tags:
+      - Calendars
+      description: 'Update a specific event from a room calendar.
+
+        '
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  eventId:
+                    type: string
+                  unknownAttendees:
+                    anyOf:
+                    - items:
+                        type: integer
+                    - items:
+                        type: string
+                    type: array
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+        '401':
+          description: Unauthorized
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/Event"
+            examples: {}
+        description: ''
+      parameters:
+      - schema:
+          type: string
+          default: internal
+          enum:
+          - internal
+          - external
+        in: header
+        name: preferredIdFormat
+        description: This header defined the kind of id used in request. You can set
+          it to external to user externalId or internal to use Swizi id
+    delete:
+      summary: Cancel an event from room calendar
+      description: "Cancel an event. \nThe event will be removed from all attendees
+        calendars."
+      operationId: delete-ext-appId-calendar-owner-email-event-eventId
+      responses:
+        '204':
+          description: OK
+          content:
+            application/json: {}
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+              examples: {}
+      tags:
+      - Calendars
+      parameters: []
+  "/ext/{appId}/calendar/room/{roomRef}/event":
+    parameters:
+    - schema:
+        type: string
+      name: appId
+      in: path
+      required: true
+      description: Swizi projet id
+    - schema:
+        type: string
+      name: roomRef
+      in: path
+      required: true
+      description: Location reference from Swizi DBRM
+    get:
+      summary: List all events from a room calendar
+      description: List all events from a room's calendar
+      tags:
+      - Calendars
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/EventRead"
+              examples: {}
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+              examples:
+                Example 1:
+                  value:
+                    status: 400
+                    errors:
+                    - path: id/extId
+                      errorCode: required.openapi.requestValidation
+                      message: user not found
+                      location: query
+      operationId: get-ext-appId-calendar-owner-email-event
+      parameters:
+      - schema:
+          type: string
+        in: query
+        name: start
+        description: Returns all events that take place after or from this date. The
+          format is ISOString.
+        required: true
+      - schema:
+          type: string
+        in: query
+        name: end
+        description: Returns all events taking place before or up to this date. The
+          format is ISOString.
+        required: true
+      - schema:
+          type: string
+          default: internal
+          enum:
+          - internal
+          - external
+        in: header
+        name: preferredIdFormat
+        description: This header defined the kind of id used in request. You can set
+          it to external to user externalId or internal to use Swizi id
+    post:
+      summary: Create an event on a room calendar
+      operationId: post-ext-appId-calendar-owner-email-event
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  eventId:
+                    type: string
+                  unknownAttendees:
+                    anyOf:
+                    - items:
+                        type: integer
+                    - items:
+                        type: string
+                    type: array
+      description: |
+        Create an event for a room .
+
+        Organizer must be set in the body.
+        It is possible to add attendees to event. Attendee must be a Swizi user.
+        The location must be set with an reference from DBRM.
+
+        Swizi does not verifiy if an other event exists on the same time window. Conflicts must be manage by API user.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/Event"
+            examples: {}
+        description: ''
+      tags:
+      - Calendars
+      parameters:
+      - schema:
+          type: string
+          default: internal
+          enum:
+          - internal
+          - external
+        in: header
+        name: preferredIdFormat
+        description: This header defined the kind of id used in request. You can set
+          it to external to user externalId or internal to use Swizi id
+  "/ext/{appId}/calendar/master/{masterEventId}/event":
+    parameters:
+    - schema:
+        type: string
+      name: appId
+      in: path
+      required: true
+      description: Swizi projet id
+    - schema:
+        type: string
+      name: masterEventId
+      in: path
+      required: true
+      description: Master event id used to group events
+    get:
+      summary: List all events linked to a master event
+      description: List all events link to the masterId provided
+      tags:
+      - Calendars
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                  - "$ref": "#/components/schemas/Event"
+                  - type: object
+                    properties:
+                      id:
+                        type: string
+                        description: Event ID
+                    required:
+                    - id
+              examples: {}
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ErrorResponse"
+              examples:
+                Example 1:
+                  value:
+                    status: 400
+                    errors:
+                    - path: id/extId
+                      errorCode: required.openapi.requestValidation
+                      message: user not found
+                      location: query
+      operationId: get-ext-appId-calendar-event-master-event
+      parameters:
+      - schema:
+          type: string
+        in: query
+        name: start
+        description: Returns all events that take place after or from this date. The
+          format is ISOString.
+        required: true
+      - schema:
+          type: string
+        in: query
+        name: end
+        description: Returns all events taking place before or up to this date. The
+          format is ISOString.
+        required: true
+      - schema:
+          type: string
+          default: internal
+          enum:
+          - internal
+          - external
+        in: header
+        name: preferredIdFormat
+        description: This header defined the kind of id used in request. You can set
+          it to external to user externalId or internal to use Swizi id
+    put:
+      summary: ''
+      operationId: put-ext-appId-calendar-master-masterEventId-event
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  eventIds:
+                    type: string
+                  unknownAttendees:
+                    anyOf:
+                    - items:
+                        type: integer
+                    - items:
+                        type: string
+                    type: array
+      parameters:
+      - schema:
+          type: string
+        in: header
+        name: preferredIdFormat
+        description: This header defined the kind of id used in request. You can set
+          it to external to user externalId or internal to use Swizi id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                "$ref": "#/components/schemas/EventWithLocation"
+  "/ext/{appId}/push":
+    parameters:
+    - schema:
+        type: integer
+      name: appId
+      in: path
+      required: true
+      description: Application ID
+    post:
+      summary: Send a push
+      description: "A route for external services to use when sending push notifications\n\n"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                x-examples:
+                  Example 1:
+                    users:
+                    - resident.dev@demo.swizi.io
+                    i18n:
+                    - locale: fr
+                      title: Titre en français
+                      message: Contenu en français
+                    - locale: en
+                      title: English title
+                      message: English title
+                properties:
+                  unknown:
+                    type: array
+                    description: a list of email address not found
+                    items:
+                      type: string
+      operationId: post-ext-appId-push
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/PushExt"
+      tags:
+      - Notifications
+  "/ext/{appId}/alert":
+    parameters:
+    - schema:
+        type: integer
+      name: appId
+      in: path
+      required: true
+      description: Application ID
+    post:
+      summary: Send an alert
+      description: A route for external services to use when sending alerts
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  unknown:
+                    type: array
+                    description: a list of email address not found
+                    items:
+                      type: string
+      operationId: post-ext-appId-alert
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/PushExt"
+      tags:
+      - Notifications
+components:
+  schemas:
+    FullUser:
+      title: User
+      x-stoplight:
+        id: d7da95ef68ec4
+      type: object
+      properties:
+        id:
+          type: integer
+          description: User ID
+        extId:
+          type: string
+          description: External ID
+        login:
+          type: string
+          description: Login / username
+        email:
+          type: string
+          description: Email
+        firstname:
+          type: string
+          description: First name
+        lastname:
+          type: string
+          description: Last name
+        phone:
+          type: string
+          description: Phone
+        mobilePhone:
+          type: string
+          description: Mobile phone
+        company:
+          type: string
+          description: Company name
+        entity:
+          type: string
+          description: Entity
+        businessAddress:
+          type: string
+          description: Business address
+        function:
+          type: string
+          description: Function in company
+        enabled:
+          type: boolean
+          description: Enable / disable
+        groups:
+          type: array
+          description: Group IDs
+          items:
+            "$ref": "#/components/schemas/Group"
+      required:
+      - id
+      - email
+      - firstname
+      - lastname
+    Group:
+      title: Group
+      x-stoplight:
+        id: q0fr0dh3ami9d
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Group ID
+        label:
+          type: string
+          description: Label
+      required:
+      - id
+      - label
+    User:
+      title: User
+      x-stoplight:
+        id: gzkbxwvd37ypg
+      type: object
+      properties:
+        id:
+          type: integer
+          description: User ID
+        extID:
+          type: string
+          description: External ID
+        login:
+          type: string
+          description: Login / username
+        email:
+          type: string
+          description: Email
+        firstname:
+          type: string
+          description: First name
+        lastname:
+          type: string
+          description: Last name
+        phone:
+          type: string
+          description: Phone
+        mobilePhone:
+          type: string
+          description: Mobile phone
+        company:
+          type: string
+          description: Company name
+        entity:
+          type: string
+          description: Entity
+        businessAddress:
+          type: string
+          description: Business address
+        function:
+          type: string
+          description: Function in company
+      required:
+      - id
+      - login
+      - email
+      - firstname
+      - lastname
+    Event:
+      title: Event
+      type: object
+      properties:
+        start:
+          type: string
+          description: ISO String start date and time of event
+        end:
+          type: string
+          description: ISO String end date and time of event
+        title:
+          type: string
+          description: Event title to display.
+        attendees:
+          type: array
+          description: List of users id. To use externalId instead of Swizi internalId,
+            you must set header preferedID to value external
+          items:
+            anyOf:
+            - type: integer
+            - type: string
+        description:
+          type: string
+          description: Event description to display.
+        confidential:
+          type: boolean
+          description: If true, title and description are not displayed on room tablets
+          default: false
+        masterId:
+          type: string
+          description: an id used to group events
+        organizer:
+          anyOf:
+          - type: integer
+          - type: string
+          description: organizer id. Can be a swiziId or an external swizi Id depends
+            on preferredIdFormat header
+      required:
+      - start
+      - end
+      - title
+      - attendees
+      - organizer
+    EventWithLocation:
+      allOf:
+      - "$ref": "#/components/schemas/Event"
+      - type: object
+        properties:
+          location:
+            type: string
+            description: a room reference from Swizi DBRM
+        required:
+        - location
+      title: EventWithLocation
+      x-stoplight:
+        id: 70b17d804255b
+    EventRead:
+      allOf:
+      - type: object
+        properties:
+          id:
+            type: string
+          location:
+            type: string
+            description: Location reference of event. This reference must be set in
+              Swizi DBRM.
+      - "$ref": "#/components/schemas/Event"
+    ErrorResponse:
+      title: ErrorResponse
+      x-stoplight:
+        id: zwcbxhc8g1ofv
+      type: object
+      x-examples:
+        Example 1:
+          status: 400
+          errors:
+          - path: id/extId
+            errorCode: required.openapi.requestValidation
+            message: user not found
+            location: query
+      properties:
+        status:
+          type: integer
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              path:
+                type: string
+              errorCode:
+                type: string
+              message:
+                type: string
+              location:
+                type: string
+            required:
+            - path
+            - errorCode
+            - message
+            - location
+      required:
+      - status
+      - errors
+    PushExt:
+      title: PushExt
+      x-stoplight:
+        id: e2rhco8lji2l2
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            type: string
+        groups:
+          type: array
+          items:
+            type: string
+        i18n:
+          type: array
+          items:
+            type: object
+            properties:
+              locale:
+                type: string
+              title:
+                type: string
+              message:
+                type: string
+        action:
+          type: object
+          properties:
+            url:
+              type: string
